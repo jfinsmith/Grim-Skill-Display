@@ -30,6 +30,12 @@ const HELP = {
   trackClipping: 'Watches the gap between your GCDs. It learns your fastest clean GCD, then counts any GCD that came late (you clipped/drifted) — shown as "clips: x/y" in the header. Lower is better.',
   showDots: 'Live countdown pips (top-left) for every DoT / damage-debuff you apply. They turn red and flash when about to expire.',
   dotWarnThreshold: 'How many seconds of remaining time triggers the red refresh flash.',
+  dotAlert: 'Extra alert when a DoT is about to expire: a screen-edge flash, a beep, or nothing (the pip always flashes regardless).',
+  highlightBuffs: 'Tint the bar gold while a party damage-up buff is on you (Divination, Brotherhood, Embolden, etc.) so you can see your burst window.',
+  showDeathMarkers: 'Drop a marker on the timeline when you die.',
+  showGcdUptime: 'Show your estimated GCD uptime % in the header (how much of the fight your GCD was rolling). The single best optimization metric.',
+  showSummary: 'When combat ends, show a card summarizing GCDs, uptime, clips, positionals, deaths, and DoT uptime.',
+  openerCountdown: 'Show a big 5→1 countdown synced to the in-game pull countdown (/countdown).',
   meterMetric: 'What the top-right number shows. Also click the meter itself to cycle.',
   lang: 'Interface language.',
 };
@@ -62,6 +68,14 @@ const SCHEMA = [
   { key: 'trackClipping', type: 'toggle', label: 'Track GCD clipping' },
   { key: 'showDots', type: 'toggle', label: 'DoT / debuff timers' },
   { key: 'dotWarnThreshold', type: 'stepper', label: 'DoT refresh warning (sec)', min: 1, max: 12, step: 1 },
+  { key: 'dotAlert', type: 'dropdown', label: 'DoT expiry alert', options: [['off', 'Off'], ['flash', 'Screen flash'], ['sound', 'Beep']] },
+
+  { section: 'Analysis' },
+  { key: 'showGcdUptime', type: 'toggle', label: 'GCD uptime % (header)' },
+  { key: 'highlightBuffs', type: 'toggle', label: 'Highlight raid-buff windows' },
+  { key: 'showDeathMarkers', type: 'toggle', label: 'Death markers on bar' },
+  { key: 'openerCountdown', type: 'toggle', label: 'Opener countdown' },
+  { key: 'showSummary', type: 'toggle', label: 'Pull summary card' },
 
   { section: 'Meter' },
   { key: 'meterMetric', type: 'dropdown', label: 'Top-right metric', options: [['dps', 'Personal DPS'], ['hps', 'Healing /s'], ['dtps', 'Damage taken /s'], ['rdps', 'Raid DPS'], ['off', 'Off']] },

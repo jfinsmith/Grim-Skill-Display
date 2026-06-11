@@ -5,8 +5,11 @@
 // current and future. (Covers DoTs *and* maintain-debuffs like Death's Design.)
 
 import { get } from './store.js';
+import { triggerDotAlert } from './features.js';
 
-const active = new Map(); // effectId -> {name, expireMs, duration}
+const active = new Map(); // effectId -> {name, expireMs, duration, gainMs}
+const uptime = new Map(); // name -> cumulative active ms (for the pull summary)
+const alerted = new Set(); // effectIds already alerted this expiry cycle
 let container = null;
 let ticking = false;
 
@@ -24,17 +27,31 @@ export function onStatusGain(p, playerID) {
   const duration = parseFloat(p[2]);
   if (!(duration >= 5 && duration <= 120)) return;       // skip stuns / permanent / buffs
   const effectId = parseInt(p[0], 16);
-  active.set(effectId, { name: p[1] || 'DoT', duration, expireMs: Date.now() + duration * 1000 });
+  active.set(effectId, { name: p[1] || 'DoT', duration, expireMs: Date.now() + duration * 1000, gainMs: Date.now() });
+  alerted.delete(effectId);
 }
 
 // from LogLine 30 (LosesEffect): same param layout
 export function onStatusLose(p, playerID) {
   const srcId = parseInt(p[3], 16);
   if (srcId !== playerID) return;
-  active.delete(parseInt(p[0], 16));
+  accrue(parseInt(p[0], 16));
 }
 
-export function clearDots() { active.clear(); if (container) container.innerHTML = ''; }
+function accrue(effectId) {
+  const d = active.get(effectId);
+  if (d) { uptime.set(d.name, (uptime.get(d.name) || 0) + (Date.now() - d.gainMs)); active.delete(effectId); }
+}
+
+// per-DoT uptime % for the summary; flush still-active ones first
+export function getDotUptimes(durationMs) {
+  [...active.keys()].forEach(accrue); // settle currently-active
+  const out = [];
+  for (const [name, ms] of uptime) out.push({ name, pct: Math.min(100, Math.round((ms / durationMs) * 100)) });
+  return out.sort((a, b) => b.pct - a.pct);
+}
+
+export function clearDots() { active.clear(); uptime.clear(); alerted.clear(); if (container) container.innerHTML = ''; }
 
 function loop() {
   if (container && get('showDots')) render();
@@ -65,7 +82,9 @@ function render() {
     pip.querySelector('.dot-name').textContent = d.name;
     pip.querySelector('.dot-time').textContent = remain.toFixed(0);
     pip.querySelector('.dot-bar').style.width = `${Math.min(100, (remain / d.duration) * 100)}%`;
-    pip.classList.toggle('warn', remain <= warn);
+    const warning = remain <= warn;
+    pip.classList.toggle('warn', warning);
+    if (warning && !alerted.has(id)) { alerted.add(id); triggerDotAlert(d.name); }
   }
   // drop stale pips
   container.querySelectorAll('.dot-pip').forEach((pip) => {

@@ -73,6 +73,12 @@ export function noteGcd(timestampMs) {
   return false;
 }
 
+// GCD uptime estimate: (GCDs fired × learned clean-GCD length) / combat duration.
+export function gcdUptime(durationSec) {
+  if (!durationSec || !stats.gcds || clip.minGap === Infinity) return null;
+  return Math.min(100, Math.round((stats.gcds * clip.minGap / durationSec) * 100));
+}
+
 /* ---------- formatted header strings ---------- */
 export function positionalText(lang) {
   const rate = stats.positional ? Math.round((stats.mispositional / stats.positional) * 100) : 0;

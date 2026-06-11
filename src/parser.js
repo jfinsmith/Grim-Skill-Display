@@ -9,11 +9,13 @@ import { onStatusGain, onStatusLose, clearDots } from './dots.js';
 import { updateMeter } from './meter.js';
 import * as rot from './rotation.js';
 import { updateHeader, setJobIcon } from './header.js';
+import * as feat from './features.js';
 
 const player = { charID: -1, charName: 'Grim', job: 'ADV', petID: -1 };
 let active = false;
 let lastTs = -1, lastId = -1;
 let lastAutoAttack = -1;       // ms timestamp of previous auto-attack (for interval display)
+let lastGcdMs = -1;            // ms timestamp of previous GCD (for downtime markers)
 let lastCast = null;           // last casting action (for interrupt marking)
 const petActions = [];         // pending pet actions for ghost validation
 let petLastCast = null;
@@ -34,12 +36,14 @@ export function handleEvent(event) {
 function parseLogLine(split) {
   const [code, ts, ...p] = split;
   switch (code) {
+    case '00': feat.maybeCountdown(p); break;
     case '03': addPet(p); break;
     case '04': removePet(p); break;
     case '20': case '21': case '22': handleAction(code, ts, p); break;
     case '23': handleInterrupt(p); break;
-    case '26': onStatusGain(p, player.charID); break;
-    case '30': onStatusLose(p, player.charID); break;
+    case '25': if (parseInt(p[0], 16) === player.charID) feat.onDeath(); break;
+    case '26': onStatusGain(p, player.charID); feat.onBuffGain(p, player.charID); break;
+    case '30': onStatusLose(p, player.charID); feat.onBuffLose(p, player.charID); break;
     case '37': handleHit(p); break;
     default: break;
   }
@@ -133,11 +137,9 @@ function handleAction(code, ts, p) {
     } else if (recentCasts.has(castKey)) {
       const dt = Date.now() - recentCasts.get(castKey);
       recentCasts.delete(castKey);
-      if (dt < 12000) {
-        // still count it for GCD-clip tracking, just don't draw a duplicate icon
-        if (lane === 'player' && action.isReal && action.cooldownGroup.includes(58) && get('trackClipping')) rot.noteGcd(Date.now());
-        return;
-      }
+      // this code-21 is the completion of a cast we already drew (and already counted at
+      // cast-start), so just drop it — don't re-count or re-render.
+      if (dt < 12000) return;
     }
   }
 
@@ -151,12 +153,25 @@ function handleAction(code, ts, p) {
       if (!ok) { classes.push('mispositional'); rot.stats.mispositional++; }
     }
     const gcd = Array.isArray(action.cooldownGroup) && action.cooldownGroup.includes(58);
-    if (gcd && !casting && get('trackClipping')) rot.noteGcd(Date.now());
-    if (gcd && casting && get('trackClipping')) rot.noteGcd(Date.now());
+    if (gcd && get('trackClipping')) rot.noteGcd(Date.now());
+    // approximate downtime marker: a long gap between GCDs during combat
+    if (gcd) {
+      if (active && lastGcdMs > 0 && Date.now() - lastGcdMs > 6000 && get('showDeathMarkers')) {
+        feat.addMarker('downtime', '↓');
+      }
+      lastGcdMs = Date.now();
+    }
   }
 
   const iconEl = renderAction(action, { lane, castTime: ct, classes });
   action.iconEl = iconEl;
+
+  // record for the pull review / summary
+  feat.recordPullAction({
+    t: Date.now(), name: action.name, icon: action.icon, lane,
+    gcd: Array.isArray(action.cooldownGroup) && action.cooldownGroup.includes(58),
+    error: classes.find((c) => c === 'mispositional' || c === 'interrupted') || '',
+  });
 
   if (lane === 'player' && casting) lastCast = action;
   if (lane === 'pet') {
@@ -203,12 +218,14 @@ function updateCombat(msg) {
   updateHeader(player.job, { duration: Encounter?.duration, you });
 
   const nowActive = !(isActive === 'false' || isActive === false);
+  if (nowActive && !active) feat.onCombatStart();        // combat began
+  if (!nowActive && active) feat.onCombatEnd(Encounter?.duration); // combat ended -> summary
   active = nowActive;
   if (!active) cleanup();
 }
 
 function cleanup() {
-  lastTs = -1; lastId = -1; lastAutoAttack = -1; lastCast = null; petLastCast = null;
+  lastTs = -1; lastId = -1; lastAutoAttack = -1; lastGcdMs = -1; lastCast = null; petLastCast = null;
   recentCasts.clear();
   petActions.length = 0;
   rot.resetStats();

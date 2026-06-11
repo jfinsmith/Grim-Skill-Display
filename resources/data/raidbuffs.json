@@ -1,0 +1,20 @@
+{
+  "_comment": "Party damage-up buffs that land ON the player. When any is active, Grim tints the bar to mark your burst window. Matched by status name (English). Edit freely; add localized names as needed.",
+  "names": [
+    "Divination",
+    "Battle Litany",
+    "Brotherhood",
+    "Battle Voice",
+    "Radiant Finale",
+    "Technical Finish",
+    "Devilment",
+    "Standard Finish",
+    "Embolden",
+    "Arcane Circle",
+    "Searing Light",
+    "Starry Muse",
+    "Harmonized",
+    "Astral Attenuation",
+    "Umbral Attenuation"
+  ]
+}

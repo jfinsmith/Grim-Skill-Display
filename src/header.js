@@ -5,7 +5,7 @@ import { get } from './store.js';
 import { lang } from './lang.js';
 import * as rot from './rotation.js';
 
-let durationEl, descEl, mispEl, clipEl, petEl, jobIconEl;
+let durationEl, descEl, mispEl, clipEl, petEl, uptimeEl, jobIconEl;
 
 export function initHeader() {
   durationEl = document.getElementById('duration');
@@ -13,6 +13,7 @@ export function initHeader() {
   mispEl = document.getElementById('stat-mispositional');
   clipEl = document.getElementById('stat-clip');
   petEl = document.getElementById('stat-pet');
+  uptimeEl = document.getElementById('stat-uptime');
   jobIconEl = document.getElementById('job-icon');
 }
 
@@ -24,6 +25,11 @@ export function setJobIcon(job) {
 export function updateHeader(job, combat) {
   if (combat?.duration) durationEl.textContent = combat.duration;
   if (descEl) descEl.classList.add('hide');
+
+  // GCD uptime % (all jobs)
+  const dur = combat?.duration ? parseDur(combat.duration) : 0;
+  const up = rot.gcdUptime(dur);
+  toggleStat(uptimeEl, get('showGcdUptime') && up != null, up != null ? `uptime: ${up}%` : '');
 
   const flags = Data.classjob[job] || [];
   // positional miss (jobs flagged 'mispositional')
@@ -44,4 +50,9 @@ function toggleStat(el, show, text) {
 
 export function setActive(on) {
   durationEl?.classList.toggle('active', on);
+}
+
+function parseDur(d) {
+  const x = String(d).split(':').map(Number);
+  return x.length === 2 ? x[0] * 60 + x[1] : (x.length === 3 ? x[0] * 3600 + x[1] * 60 + x[2] : 0);
 }

@@ -11,6 +11,8 @@ import { initDots } from './dots.js';
 import { initSnapshot } from './snapshot.js';
 import { buildSettings, toggleSettings } from './settings-ui.js';
 import { initTooltips } from './tooltip.js';
+import { initFeatures } from './features.js';
+import { initReview } from './review.js';
 import { handleEvent, fullReset } from './parser.js';
 
 async function main() {
@@ -22,6 +24,8 @@ async function main() {
   initHeader();
   initMeter();
   initDots();
+  initFeatures();
+  initReview();
   initSnapshot();
   buildSettings(applyVisuals);
 

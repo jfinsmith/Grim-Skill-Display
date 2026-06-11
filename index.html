@@ -26,6 +26,7 @@
           </div>
           <div class="info-row" id="info-row">
             <span id="desc">mirror your moves. sharpen your rotation.</span>
+            <span class="stat hide" id="stat-uptime"></span>
             <span class="stat hide" id="stat-mispositional"></span>
             <span class="stat hide" id="stat-clip"></span>
             <span class="stat hide" id="stat-pet"></span>
@@ -41,6 +42,7 @@
 
       <div class="header-menu">
         <i class="material-icons iconbutton" id="btn-pin" data-tip="Pin: keep this header always visible (otherwise it fades unless you hover the top)">push_pin</i>
+        <i class="material-icons iconbutton" id="btn-review" data-tip="Pause &amp; review: freeze and scroll back through the whole pull">history</i>
         <i class="material-icons iconbutton" id="btn-reset" data-tip="Reset / end the current encounter in ACT and clear the bar">timer_off</i>
         <i class="material-icons iconbutton" id="btn-snapshot" data-tip="Save a PNG of your last ~15 seconds of skills">photo_camera</i>
         <i class="material-icons iconbutton" id="btn-settings" data-tip="Open settings">settings</i>
@@ -51,14 +53,20 @@
     <div class="main" id="main">
       <div class="dot-tracker hide" id="dot-tracker"></div>
       <div class="skilldisplayer bg-active" id="skilldisplayer">
+        <div class="beat-grid hide" id="beat-grid"></div>
+        <div class="markers" id="markers"></div>
         <div class="lane auto-attack-lane" id="auto-attack-lane"></div>
         <div class="lane player-lane" id="player-lane"></div>
         <div class="lane pet-lane" id="pet-lane"></div>
-        <div class="beat-grid hide" id="beat-grid"></div>
+        <div class="buff-glow" id="buff-glow"></div>
       </div>
+      <div class="countdown hide" id="countdown"></div>
+      <div class="dot-alert-flash" id="dot-alert-flash"></div>
     </div>
 
-    <!-- ===== Settings panel ===== -->
+    <!-- ===== Overlays ===== -->
+    <div class="review hide" id="review"></div>
+    <div class="summary hide" id="summary"></div>
     <aside class="settings hide" id="settings"></aside>
   </div>
 
