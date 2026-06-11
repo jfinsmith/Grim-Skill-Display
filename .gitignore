@@ -1,0 +1,13 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+.vscode/
+.idea/
+
+# Node (only the tools/ scripts use node; nothing is committed)
+node_modules/
+npm-debug.log*
+
+# the reference copy of the old overlay — never upload
+kagami-master/

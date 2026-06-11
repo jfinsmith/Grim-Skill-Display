@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Grim Skill Display</title>
+  <link rel="icon" href="data:," />
+  <!-- OverlayPlugin bridge (addOverlayListener / startOverlayEvents) -->
+  <script src="https://ngld.github.io/OverlayPlugin/assets/shared/common.min.js"></script>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
+  <link rel="stylesheet" href="./src/styles/main.css" />
+</head>
+<body>
+  <noscript>You need to enable JavaScript to run Grim Skill Display.</noscript>
+
+  <div class="app" id="app">
+    <!-- ===== Header ===== -->
+    <header class="header pinned" id="header">
+      <div class="header-left">
+        <div class="job-icon classjob classjob-00" id="job-icon"></div>
+        <div class="header-text">
+          <div class="title-row">
+            <span id="title">Grim Skill Display</span>
+            <span class="duration" id="duration">00:00</span>
+          </div>
+          <div class="info-row" id="info-row">
+            <span id="desc">mirror your moves. sharpen your rotation.</span>
+            <span class="stat hide" id="stat-mispositional"></span>
+            <span class="stat hide" id="stat-clip"></span>
+            <span class="stat hide" id="stat-pet"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live mini-meter (top-right) -->
+      <div class="meter" id="meter">
+        <div class="meter-value" id="meter-value">--</div>
+        <div class="meter-label" id="meter-label" title="click to change metric">DPS</div>
+      </div>
+
+      <div class="header-menu">
+        <i class="material-icons iconbutton" id="btn-pin" title="always show header">push_pin</i>
+        <i class="material-icons iconbutton" id="btn-reset" title="reset encounter">timer_off</i>
+        <i class="material-icons iconbutton" id="btn-snapshot" title="save snapshot (last seconds)">photo_camera</i>
+        <i class="material-icons iconbutton" id="btn-settings" title="settings">settings</i>
+      </div>
+    </header>
+
+    <!-- ===== Main bar ===== -->
+    <div class="main" id="main">
+      <div class="dot-tracker hide" id="dot-tracker"></div>
+      <div class="skilldisplayer bg-active" id="skilldisplayer">
+        <div class="lane auto-attack-lane" id="auto-attack-lane"></div>
+        <div class="lane player-lane" id="player-lane"></div>
+        <div class="lane pet-lane" id="pet-lane"></div>
+        <div class="beat-grid hide" id="beat-grid"></div>
+      </div>
+    </div>
+
+    <!-- ===== Settings panel ===== -->
+    <aside class="settings hide" id="settings"></aside>
+  </div>
+
+  <span class="resize-handler"></span>
+
+  <script type="module" src="./src/app.js"></script>
+</body>
+</html>

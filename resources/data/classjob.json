@@ -1,0 +1,52 @@
+{
+  "ADV": [],
+
+  "GLA": [],
+  "PGL": ["mispositional"],
+  "MRD": [],
+  "LNC": ["mispositional"],
+  "ARC": [],
+  "CNJ": ["casting"],
+  "THM": ["casting"],
+
+  "CRP": [],
+  "BSM": [],
+  "ARM": [],
+  "GSM": [],
+  "LTW": [],
+  "WVR": [],
+  "ALC": [],
+  "CUL": [],
+
+  "MIN": [],
+  "BOT": [],
+  "FSH": [],
+
+  "PLD": ["casting"],
+  "MNK": ["mispositional"],
+  "WAR": [],
+  "DRG": ["mispositional"],
+  "BRD": [],
+  "WHM": ["casting"],
+  "BLM": ["casting"],
+
+  "ACN": ["casting", "pet-action"],
+  "SMN": ["casting", "pet-action"],
+  "SCH": ["casting", "pet-action"],
+  "ROG": ["mispositional"],
+  "NIN": ["mispositional"],
+  "MCH": [],
+  "DRK": [],
+  "AST": ["casting"],
+
+  "SAM": ["mispositional", "casting"],
+  "RDM": ["casting"],
+  "BLU": ["casting"],
+  "GNB": [],
+  "DNC": [],
+  "SGE": ["casting"],
+  "RPR": ["mispositional", "casting"],
+
+  "VPR": ["mispositional"],
+  "PCT": []
+}
