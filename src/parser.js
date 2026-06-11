@@ -2,7 +2,7 @@
 // Battle-log handling is ported from kagami (handleAction / parseMessage) and extended
 // with: local item lookup, GCD/clip tracking, live DoT detection, multi-metric meter.
 
-import { Data, lookupAction, lookupItem } from './data.js';
+import { Data, lookupAction, lookupItem, lookupMount } from './data.js';
 import { get } from './store.js';
 import { renderAction, renderAutoAttack, appendErrorIcon, clearBars } from './bar.js';
 import { onStatusGain, onStatusLose, clearDots } from './dots.js';
@@ -13,6 +13,7 @@ import { updateHeader, setJobIcon } from './header.js';
 const player = { charID: -1, charName: 'Grim', job: 'ADV', petID: -1 };
 let active = false;
 let lastTs = -1, lastId = -1;
+let lastAutoAttack = -1;       // ms timestamp of previous auto-attack (for interval display)
 let lastCast = null;           // last casting action (for interrupt marking)
 const petActions = [];         // pending pet actions for ghost validation
 let petLastCast = null;
@@ -98,9 +99,14 @@ function handleAction(code, ts, p) {
   else if (actorID === player.petID) lane = 'pet';
   else return;
 
-  // auto-attacks
+  // auto-attacks (use the real crossed-swords icon; show interval to gauge skill/spell speed)
   if (actionID === 7 || actionID === 8) {
-    if (get('showAutoAttacks')) renderAutoAttack({ icon: '000101', name: 'Auto-attack', cooldownGroup: [0, 0] });
+    if (lane === 'player' && get('showAutoAttacks')) {
+      let interval = 0;
+      if (lastAutoAttack > 0) interval = (Date.now() - lastAutoAttack) / 1000;
+      lastAutoAttack = Date.now();
+      renderAutoAttack({ icon: '000101', name: 'Auto-attack', cooldownGroup: [0, 0] }, interval);
+    }
     return;
   }
 
@@ -144,8 +150,9 @@ function handleAction(code, ts, p) {
 // Build a renderable object from an action/item/mount id.
 function resolveAction(actionID, p) {
   if (actionID >= MOUNT_FLAG) {
-    // mount (not castable in combat; fallback icon)
-    return { id: actionID, name: p[3] || 'Mount', icon: '000118', cooldownGroup: [0, 0], isReal: false };
+    const mountID = actionID & 0xffffff;
+    const mt = lookupMount(mountID);
+    return { id: actionID, name: mt?.name || p[3] || 'Mount', icon: mt?.icon || '000118', cooldownGroup: [0, 0], isReal: false };
   }
   if (actionID >= ITEM_FLAG) {
     let itemID = actionID & 0xffffff;
@@ -177,7 +184,7 @@ function updateCombat(msg) {
 }
 
 function cleanup() {
-  lastTs = -1; lastId = -1; lastCast = null; petLastCast = null;
+  lastTs = -1; lastId = -1; lastAutoAttack = -1; lastCast = null; petLastCast = null;
   petActions.length = 0;
   rot.resetStats();
   clearDots();

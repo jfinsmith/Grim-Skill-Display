@@ -5,6 +5,7 @@ const json = (path) => fetch(path).then((r) => r.json());
 export const Data = {
   actions: {},   // id -> {n,i,cd,p,j,cat,lvl}
   items: {},     // itemId -> {n,i}
+  mounts: {},    // mountId -> {n,i}
   classjob: {},  // ABBR -> [flags]
   lang: {},      // dictionary
   settings: {},  // default settings
@@ -12,15 +13,17 @@ export const Data = {
 };
 
 export async function loadData() {
-  const [actions, items, classjob, lang, settings] = await Promise.all([
+  const [actions, items, mounts, classjob, lang, settings] = await Promise.all([
     json('./resources/data/actions.json'),
     json('./resources/data/items.json'),
+    json('./resources/data/mounts.json'),
     json('./resources/data/classjob.json'),
     json('./resources/data/lang.json'),
     json('./resources/data/settings.json'),
   ]);
   Data.actions = actions;
   Data.items = items;
+  Data.mounts = mounts;
   Data.classjob = classjob;
   Data.lang = lang;
   Data.settings = settings;
@@ -51,4 +54,10 @@ export function lookupAction(actionID) {
 export function lookupItem(itemID) {
   const it = Data.items[itemID];
   return it ? { name: it.n, icon: it.i } : null;
+}
+
+// Look up a mount (for mount-summon actions). Returns {name, icon} or null.
+export function lookupMount(mountID) {
+  const m = Data.mounts[mountID];
+  return m ? { name: m.n, icon: m.i } : null;
 }

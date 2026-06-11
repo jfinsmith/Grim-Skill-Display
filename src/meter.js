@@ -2,7 +2,9 @@
 
 import { get, set } from './store.js';
 
-const METRICS = ['dps', 'hps', 'dtps', 'rdps', 'off'];
+// click-cycle never lands on 'off' (you couldn't click a hidden meter to escape it);
+// 'off' is only selectable from the settings dropdown.
+const CYCLE = ['dps', 'hps', 'dtps', 'rdps'];
 const LABELS = { dps: 'DPS', hps: 'HPS', dtps: 'DT/s', rdps: 'rDPS', off: '—' };
 let valueEl, labelEl, boxEl;
 
@@ -11,9 +13,11 @@ export function initMeter() {
   valueEl = document.getElementById('meter-value');
   labelEl = document.getElementById('meter-label');
   paintLabel();
+  boxEl.setAttribute('data-tip', 'Click to change metric (DPS → HPS → damage taken → raid DPS)');
   boxEl.addEventListener('click', () => {
     const cur = get('meterMetric');
-    const next = METRICS[(METRICS.indexOf(cur) + 1) % METRICS.length];
+    const idx = CYCLE.indexOf(cur);              // -1 when currently 'off' -> start at dps
+    const next = CYCLE[(idx + 1) % CYCLE.length];
     set('meterMetric', next);
     paintLabel();
   });

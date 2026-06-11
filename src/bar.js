@@ -41,7 +41,8 @@ export function renderAction(action, opts = {}) {
 
   const icon = document.createElement('div');
   icon.className = 'icon';
-  icon.classList.add(get('distinguishGcd') ? (gcd ? 'gcd' : 'ogcd') : 'gcd');
+  const sizeClass = opts.lane === 'aa' ? 'aa' : (get('distinguishGcd') ? (gcd ? 'gcd' : 'ogcd') : 'gcd');
+  icon.classList.add(sizeClass);
   (opts.classes || []).forEach((c) => icon.classList.add(c));
 
   // image
@@ -49,18 +50,25 @@ export function renderAction(action, opts = {}) {
   img.src = iconPath(action.icon) || iconPath('000405'); // 000405 = generic fallback icon
   img.className = 'skill-img';
   (opts.classes || []).forEach((c) => img.classList.add(c));
-  img.onerror = () => { img.src = iconPath('000405'); };
+  img.onerror = () => { if (!img.src.endsWith('000405.png')) img.src = iconPath('000405'); };
   icon.appendChild(img);
 
   // optional name label
-  if (get('showLabels') && action.name) {
+  if (get('showLabels') && action.name && opts.lane !== 'aa') {
     const label = document.createElement('span');
     label.className = 'icon-label';
     label.textContent = action.name;
     icon.appendChild(label);
   }
-  // tooltip (native title — simple + reliable)
-  if (get('showTooltips') && action.name) icon.title = action.name;
+  // auto-attack interval (skill/spell-speed gauge): seconds since previous AA
+  if (opts.lane === 'aa' && opts.interval > 0.1) {
+    const t = document.createElement('span');
+    t.className = 'aa-interval';
+    t.textContent = opts.interval.toFixed(2);
+    icon.appendChild(t);
+  }
+  // custom tooltip (native title doesn't render in OverlayPlugin's browser)
+  if (get('showTooltips') && action.name) icon.setAttribute('data-tip', action.name);
 
   // cast bar: widen the icon's leading edge proportional to cast time
   let castBar = 0;
@@ -89,8 +97,8 @@ export function renderAction(action, opts = {}) {
   return icon;
 }
 
-export function renderAutoAttack(action) {
-  return renderAction(action, { lane: 'aa', forceGcd: true });
+export function renderAutoAttack(action, interval = 0) {
+  return renderAction(action, { lane: 'aa', forceGcd: true, interval });
 }
 
 // wipe everything on screen (encounter end / settings change)
