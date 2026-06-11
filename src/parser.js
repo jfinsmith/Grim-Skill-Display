@@ -17,6 +17,7 @@ let lastAutoAttack = -1;       // ms timestamp of previous auto-attack (for inte
 let lastCast = null;           // last casting action (for interrupt marking)
 const petActions = [];         // pending pet actions for ghost validation
 let petLastCast = null;
+const recentCasts = new Map();  // `${actorID}:${actionID}` -> ms, to de-dupe cast-start vs completion
 
 const ITEM_FLAG = 0x2000000;
 const MOUNT_FLAG = 0x4000000;
@@ -116,8 +117,31 @@ function handleAction(code, ts, p) {
   let ct = castTime;
   if (lane === 'player' && ct > 66) ct -= 66; // kagami: trim the ~animation lock
 
-  const classes = [];
   const casting = code === '20';
+
+  // suppress the generic "Mount" pre-cast (action ID 4) — the specific mount summon
+  // (actionID >= 0x4000000) is shown instead. ID-based so it works in every language.
+  if (actionID === 4) return;
+
+  // cast de-duplication: by default ("press" mode) show one icon per skill use.
+  // a hard cast fires a cast-start (20) then a completion (21) for the same id — keep the
+  // cast-start (with its bar) and drop the matching completion so it isn't shown twice.
+  const castKey = `${actorID}:${actionID}`;
+  if (get('castMode') === 'press') {
+    if (casting) {
+      recentCasts.set(castKey, Date.now());
+    } else if (recentCasts.has(castKey)) {
+      const dt = Date.now() - recentCasts.get(castKey);
+      recentCasts.delete(castKey);
+      if (dt < 12000) {
+        // still count it for GCD-clip tracking, just don't draw a duplicate icon
+        if (lane === 'player' && action.isReal && action.cooldownGroup.includes(58) && get('trackClipping')) rot.noteGcd(Date.now());
+        return;
+      }
+    }
+  }
+
+  const classes = [];
   if (casting) classes.push('casting');
 
   // positional + GCD/clip only for real player skills (not items/mounts)
@@ -185,6 +209,7 @@ function updateCombat(msg) {
 
 function cleanup() {
   lastTs = -1; lastId = -1; lastAutoAttack = -1; lastCast = null; petLastCast = null;
+  recentCasts.clear();
   petActions.length = 0;
   rot.resetStats();
   clearDots();

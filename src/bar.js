@@ -58,6 +58,7 @@ export function renderAction(action, opts = {}) {
     const label = document.createElement('span');
     label.className = 'icon-label';
     label.textContent = action.name;
+    label.style.fontSize = `${10 * (get('labelScale') || 1)}px`;
     icon.appendChild(label);
   }
   // auto-attack interval (skill/spell-speed gauge): seconds since previous AA
@@ -65,6 +66,7 @@ export function renderAction(action, opts = {}) {
     const t = document.createElement('span');
     t.className = 'aa-interval';
     t.textContent = opts.interval.toFixed(2);
+    t.style.fontSize = `${9 * (get('aaIntervalScale') || 1)}px`;
     icon.appendChild(t);
   }
   // custom tooltip (native title doesn't render in OverlayPlugin's browser)

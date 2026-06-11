@@ -18,8 +18,11 @@ const HELP = {
   showGrid: 'The scrolling music-staff grid behind the icons.',
   showBeatGrid: 'Faint vertical ticks marking a rough GCD rhythm.',
   distinguishGcd: 'Draw GCDs larger with an accent border and oGCDs smaller, so weaves are obvious.',
-  showLabels: 'Print each skill\'s name under its icon.',
-  showTooltips: 'Hover an icon to see its name (and these help tips).',
+  showLabels: 'Print each skill\'s name under its icon (black background, bold white text).',
+  labelScale: 'Size of the skill-name labels.',
+  showTooltips: 'Hover an icon to see its name (and these help tips). Tips appear pinned in the top-left.',
+  castMode: 'Button hit = one icon when you press a skill (hard casts show a cast bar). Cast + complete = show the cast AND the moment it lands (two icons).',
+  aaIntervalScale: 'Size of the seconds-between-auto-attacks number (your effective attack speed).',
   showAutoAttacks: 'Show auto-attacks in their own small top lane. Each shows the seconds since the last one (your effective attack speed).',
   showPetActions: 'Show your pet/summon actions in the bottom lane.',
   checkPositionals: 'For melee with rear/flank skills (MNK/DRG/NIN/SAM/RPR): marks a skill with a red ✖ when you hit it from the wrong side, and tracks a miss % in the header.',
@@ -46,10 +49,13 @@ const SCHEMA = [
   { key: 'showBeatGrid', type: 'toggle', label: 'GCD beat ticks' },
   { key: 'distinguishGcd', type: 'toggle', label: 'Distinguish GCD vs oGCD' },
   { key: 'showLabels', type: 'toggle', label: 'Skill name labels' },
+  { key: 'labelScale', type: 'stepper', label: 'Label text size', min: 0.7, max: 2, step: 0.1, dp: 1 },
   { key: 'showTooltips', type: 'toggle', label: 'Hover tooltips' },
 
   { section: 'Tracking' },
+  { key: 'castMode', type: 'dropdown', label: 'Cast display', options: [['press', 'Button hit (one icon)'], ['both', 'Cast + complete']] },
   { key: 'showAutoAttacks', type: 'toggle', label: 'Auto-attacks (+ interval)' },
+  { key: 'aaIntervalScale', type: 'stepper', label: 'Auto-attack text size', min: 0.7, max: 2.5, step: 0.1, dp: 1 },
   { key: 'showPetActions', type: 'toggle', label: 'Pet actions' },
   { key: 'checkPositionals', type: 'toggle', label: 'Check positional misses' },
   { key: 'validatePetActions', type: 'toggle', label: 'Validate pet actions (ghosts)' },
@@ -70,8 +76,7 @@ export function buildSettings(onChange) {
   onChangeCb = onChange;
   const root = document.getElementById('settings');
   root.innerHTML = '';
-  // prevent OverlayPlugin from starting a window-drag when interacting with controls
-  root.addEventListener('mousedown', (e) => e.stopPropagation());
+  enableDragScroll(root);
 
   const head = el('div', 'settings-head');
   const h = el('span'); h.textContent = 'Grim — settings';
@@ -101,6 +106,24 @@ export function buildSettings(onChange) {
 }
 
 function apply(key, v) { set(key, v); clearBars(); onChangeCb?.(key, v); }
+
+// Drag anywhere in the panel to scroll it, instead of OverlayPlugin moving the whole overlay.
+// (When the overlay is unlocked, the plugin captures drags as window-moves; we intercept here.)
+function enableDragScroll(root) {
+  let dragging = false, startY = 0, startTop = 0, moved = false;
+  root.addEventListener('mousedown', (e) => {
+    e.stopPropagation();                       // stop the overlay window-drag
+    if (e.target.closest('button, input, .dropdown, .swatch, .toggle')) return; // let controls work
+    dragging = true; moved = false; startY = e.clientY; startTop = root.scrollTop;
+  });
+  window.addEventListener('mousemove', (e) => {
+    if (!dragging) return;
+    root.scrollTop = startTop - (e.clientY - startY);
+    if (Math.abs(e.clientY - startY) > 3) moved = true;
+  });
+  window.addEventListener('mouseup', () => { dragging = false; });
+  root.addEventListener('click', (e) => { if (moved) { e.preventDefault(); e.stopPropagation(); } }, true);
+}
 
 function control(row) {
   const wrap = el('div', 'control');

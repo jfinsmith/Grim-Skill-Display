@@ -3,6 +3,7 @@
 
 :root {
   --grim-bg: #1a1a1add;
+  --grim-header-bg: rgba(16, 16, 20, 0.92);
   --grim-accent: #ff7b00;
   --grim-fg: #f2f2f2;
   --grim-grid: rgba(255, 255, 255, 0.18);
@@ -24,10 +25,12 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; }
 /* ---------- header ---------- */
 .header {
   display: flex; align-items: center; gap: 10px;
-  padding: 4px 8px; background: var(--grim-bg);
+  padding: 4px 8px; background: var(--grim-header-bg);
   opacity: 0; transition: opacity .15s; position: relative; z-index: 5;
 }
 .app:hover .header, .header.pinned { opacity: 1; }
+/* keep the header reachable even when the bar background is fully transparent:
+   pin it (default on) and it always shows with its own background. */
 .header-left { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; }
 .job-icon { font-size: 30px; flex: none; }
 .header-text { min-width: 0; }
@@ -72,15 +75,19 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; }
 /* lanes are layered bands: main lane centred in the full height, AA at top, pet at bottom,
    so the main row is always vertically centred regardless of which lanes are shown. */
 .lane { position: absolute; left: 0; right: 0; }
-.player-lane { top: 0; bottom: 0; }
-.auto-attack-lane { top: 2%; height: 26%; }
-.pet-lane { bottom: 2%; height: 26%; }
+.player-lane { top: 0; bottom: 0; z-index: 2; }
+.auto-attack-lane { top: 5%; height: 20%; z-index: 1; }   /* nudged down off the top edge, clear of the GCD row */
+.pet-lane { bottom: 2%; height: 24%; z-index: 1; }
 
 /* travelling icon — vertically centred in its lane */
 .icon {
   position: absolute; right: 0; top: 50%; transform: translateY(-50%);
   display: flex; align-items: center; justify-content: flex-end; visibility: hidden;
 }
+/* oGCDs are half-size — keep them above everything so they never hide behind a GCD */
+.icon.ogcd { z-index: 6; }
+.icon.gcd { z-index: 4; }
+.icon.aa { z-index: 3; }
 .skilldisplayer.ltr .icon { right: auto; left: 0; justify-content: flex-start; }
 .skill-img {
   display: block; border-radius: var(--grim-icon-radius);
@@ -93,13 +100,15 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; }
 .skill-img.casting { background-color: rgba(255, 255, 255, .25); }
 
 .icon-label {
-  position: absolute; bottom: -2px; left: 0; right: 0; text-align: center;
-  font-size: 8px; line-height: 1.1; text-shadow: 0 1px 2px #000; pointer-events: none;
-  overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+  position: absolute; bottom: -7px; left: 50%; transform: translateX(-50%);
+  max-width: 150%; text-align: center; line-height: 1.2; pointer-events: none;
+  font-weight: 800; color: #fff; background: rgba(0, 0, 0, .82);
+  padding: 1px 4px; border-radius: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .aa-interval {
-  position: absolute; top: -2px; right: 0; font-size: 8px; font-weight: 800;
-  color: var(--grim-accent); text-shadow: 0 1px 2px #000; pointer-events: none;
+  position: absolute; top: -7px; right: -2px; font-weight: 800;
+  color: #fff; background: rgba(0, 0, 0, .8); padding: 0 3px; border-radius: 3px;
+  pointer-events: none;
 }
 
 /* errors */
@@ -124,9 +133,9 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; }
 .dot-pip.warn .dot-bar { background: #ff3b3b; }
 @keyframes dotflash { 50% { background: rgba(255, 59, 59, .4); } }
 
-/* ---------- custom tooltip ---------- */
+/* ---------- custom tooltip (pinned top-left, never under the cursor) ---------- */
 .grim-tooltip {
-  position: fixed; z-index: 99; max-width: 280px; pointer-events: none;
+  position: fixed; top: 8px; left: 8px; z-index: 99; max-width: 320px; pointer-events: none;
   background: #0c0c10; color: #f2f2f2; border: 1px solid var(--grim-accent);
   border-radius: 6px; padding: 6px 9px; font-size: 12px; line-height: 1.35;
   box-shadow: 0 4px 16px rgba(0, 0, 0, .6);
