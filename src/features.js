@@ -72,7 +72,14 @@ export function addMarker(cls, label) {
   m.innerHTML = `<span>${label}</span>`;
   els.markers.appendChild(m);
   const dur = get('displayTime') * 1000;
-  m.animate({ [dir]: ['0%', '100%'] }, { duration: dur, iterations: 1 });
+  m.animate(
+    [
+      { [dir]: '0%', opacity: 1, offset: 0 },
+      { opacity: 1, offset: 0.82 },
+      { [dir]: '100%', opacity: 0, offset: 1 },
+    ],
+    { duration: dur, iterations: 1, easing: 'linear', fill: 'forwards' },
+  );
   setTimeout(() => { try { els.markers.removeChild(m); } catch {} }, dur + 200);
 }
 

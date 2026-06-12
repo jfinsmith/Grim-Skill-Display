@@ -80,12 +80,17 @@ export function renderAction(action, opts = {}) {
     img.style.paddingRight = `${castBar}vw`;
   }
 
-  // travel animation
+  // travel animation: pop in at the entry edge, cross the bar, then fade out over the
+  // last ~18% so it dissolves off the exit edge instead of hitting a wall.
   const from = dir === 'ltr' ? 'left' : 'right';
   icon.style[from] = `-${castBar}vw`;
   icon.animate(
-    { [from]: [`-${castBar}vw`, '100%'], visibility: ['visible', 'visible'] },
-    { duration: displayTime * 1000 + castTime * 10, iterations: 1 },
+    [
+      { [from]: `-${castBar}vw`, opacity: 1, visibility: 'visible', offset: 0 },
+      { opacity: 1, visibility: 'visible', offset: 0.82 },
+      { [from]: '100%', opacity: 0, visibility: 'visible', offset: 1 },
+    ],
+    { duration: displayTime * 1000 + castTime * 10, iterations: 1, easing: 'linear', fill: 'forwards' },
   );
 
   lane.appendChild(icon);
