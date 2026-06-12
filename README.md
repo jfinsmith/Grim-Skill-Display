@@ -121,10 +121,11 @@ Icons and skill data are bundled, so Grim keeps working through patches. When a 
 skills, re-sync the data — this needs [Node.js](https://nodejs.org) 18+:
 
 ```bash
-node tools/01-fetch-actions.mjs      # refresh the full skill list
-node tools/02-fetch-icons.mjs        # download only the newly-referenced icons
-node tools/03-fetch-consumables.mjs  # refresh pots / tinctures
-node tools/04-fetch-mounts.mjs       # refresh mounts
+node tools/01-fetch-actions.mjs         # refresh the full skill list
+node tools/02-fetch-icons.mjs           # download only the newly-referenced icons
+node tools/03-fetch-consumables.mjs     # refresh pots / tinctures
+node tools/04-fetch-mounts.mjs          # refresh mounts
+node tools/05-fetch-generalactions.mjs  # refresh general actions (Desynthesis, Repair, ...)
 
 git add resources && git commit -m "Resync data for patch X.Y" && git push
 ```

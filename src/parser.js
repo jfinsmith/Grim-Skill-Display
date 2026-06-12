@@ -200,8 +200,14 @@ function resolveAction(actionID, p) {
     return { id: actionID, name: it?.name || p[3] || 'Item', icon: it?.icon || '000044', cooldownGroup: [0, 0], isReal: false };
   }
   const a = lookupAction(actionID);
-  if (a) return { ...a, isReal: true };
-  return { id: actionID, name: p[3] || '???', icon: '000405', cooldownGroup: [0, 0], isReal: true };
+  // "General actions" (Desynthesis, Repair, Materia Extraction, etc.) log against an empty
+  // combat-Action row -> the 000405 fallback icon. Recover the real icon by the logged name.
+  const generalIcon = Data.generalActions[p[3]];
+  if (a) {
+    if (a.icon === '000405' && generalIcon) return { ...a, icon: generalIcon, name: a.name || p[3], isReal: true };
+    return { ...a, isReal: true };
+  }
+  return { id: actionID, name: p[3] || '???', icon: generalIcon || '000405', cooldownGroup: [0, 0], isReal: true };
 }
 
 /* ---------------- combat data ---------------- */

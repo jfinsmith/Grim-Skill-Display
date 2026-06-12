@@ -10,11 +10,12 @@ export const Data = {
   lang: {},      // dictionary
   settings: {},  // default settings
   raidbuffs: new Set(), // raid-buff status names
+  generalActions: {}, // general-action Name -> icon (Desynthesis, Repair, etc.)
   jobOrder: [],  // ABBR list, index = jobCode used by classjob spritesheet
 };
 
 export async function loadData() {
-  const [actions, items, mounts, classjob, lang, settings, raidbuffs] = await Promise.all([
+  const [actions, items, mounts, classjob, lang, settings, raidbuffs, generalActions] = await Promise.all([
     json('./resources/data/actions.json'),
     json('./resources/data/items.json'),
     json('./resources/data/mounts.json'),
@@ -22,6 +23,7 @@ export async function loadData() {
     json('./resources/data/lang.json'),
     json('./resources/data/settings.json'),
     json('./resources/data/raidbuffs.json'),
+    json('./resources/data/generalactions.json'),
   ]);
   Data.actions = actions;
   Data.items = items;
@@ -30,6 +32,7 @@ export async function loadData() {
   Data.lang = lang;
   Data.settings = settings;
   Data.raidbuffs = new Set(raidbuffs.names || []);
+  Data.generalActions = generalActions;
   Data.jobOrder = Object.keys(classjob);
   return Data;
 }
