@@ -6,6 +6,7 @@ import { lang } from './lang.js';
 import * as rot from './rotation.js';
 
 let durationEl, descEl, mispEl, clipEl, petEl, uptimeEl, jobIconEl;
+let lastDurationSec = 0; // cached so cast-driven header updates don't blank the uptime
 
 export function initHeader() {
   durationEl = document.getElementById('duration');
@@ -23,12 +24,11 @@ export function setJobIcon(job) {
 }
 
 export function updateHeader(job, combat) {
-  if (combat?.duration) durationEl.textContent = combat.duration;
+  if (combat?.duration) { durationEl.textContent = combat.duration; lastDurationSec = parseDur(combat.duration); }
   if (descEl) descEl.classList.add('hide');
 
-  // GCD uptime % (all jobs)
-  const dur = combat?.duration ? parseDur(combat.duration) : 0;
-  const up = rot.gcdUptime(dur);
+  // GCD uptime % (all jobs) — use the cached duration so cast-driven updates don't blank it
+  const up = rot.gcdUptime(lastDurationSec);
   toggleStat(uptimeEl, get('showGcdUptime') && up != null, up != null ? `uptime: ${up}%` : '');
 
   const flags = Data.classjob[job] || [];

@@ -150,10 +150,14 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; }
   position: absolute; inset: 0; z-index: 10; overflow-y: auto;
   background: var(--grim-panel); color: var(--grim-fg);
   padding: 8px 12px; font-size: 12px;
+  /* responsive columns so a wide/short overlay shows everything with little scrolling */
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 0 22px; align-content: start;
 }
+.settings-head, .settings-note, .settings-section, .settings-footer { grid-column: 1 / -1; }
 .settings-head { display: flex; justify-content: space-between; align-items: center; font-weight: 800; padding-bottom: 6px; border-bottom: 1px solid rgba(255, 255, 255, .12); position: sticky; top: 0; background: var(--grim-panel); z-index: 2; }
 .settings-note { font-size: 11px; opacity: .7; padding: 6px 0; }
-.settings-section { margin: 12px 0 4px; font-size: 10px; letter-spacing: .15em; text-transform: uppercase; opacity: .6; }
+.settings-section { margin: 10px 0 2px; font-size: 10px; letter-spacing: .15em; text-transform: uppercase; opacity: .6; color: var(--grim-accent); }
 .control { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid rgba(255, 255, 255, .05); min-height: 30px; }
 .control-label { flex: 1; cursor: help; }
 
@@ -194,12 +198,14 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; }
 
 /* ---------- raid-buff glow ---------- */
 .buff-glow {
-  position: absolute; inset: 0; pointer-events: none; z-index: 3; opacity: 0; transition: opacity .25s;
-  box-shadow: inset 0 0 0 2px rgba(255, 200, 80, .9), inset 0 0 26px rgba(255, 190, 70, .45);
-  background: linear-gradient(0deg, rgba(255, 190, 70, .12), rgba(255, 190, 70, .04));
+  position: absolute; inset: 0; pointer-events: none; z-index: 3; opacity: 0;
+  background: linear-gradient(0deg, rgba(255, 190, 70, .14), rgba(255, 190, 70, .04));
 }
-.buff-glow.on { opacity: 1; animation: buffpulse 1.6s ease-in-out infinite; }
-@keyframes buffpulse { 50% { box-shadow: inset 0 0 0 2px rgba(255, 215, 120, 1), inset 0 0 34px rgba(255, 200, 90, .6); } }
+.buff-glow.on { animation: buffpulse 1.25s ease-in-out infinite; }
+@keyframes buffpulse {
+  0%, 100% { opacity: .42; box-shadow: inset 0 0 0 2px rgba(255, 200, 80, .55), inset 0 0 16px rgba(255, 190, 70, .25); }
+  50%      { opacity: 1;   box-shadow: inset 0 0 0 3px rgba(255, 222, 125, 1), inset 0 0 42px rgba(255, 205, 95, .75); }
+}
 
 /* ---------- timeline markers (death / downtime) ---------- */
 .markers { position: absolute; inset: 0; pointer-events: none; z-index: 5; overflow: hidden; }
