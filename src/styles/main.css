@@ -95,6 +95,9 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; }
 .skill-img {
   display: block; border-radius: var(--grim-icon-radius);
   width: var(--gcd-size); height: var(--gcd-size);
+  /* content-box so the cast-bar padding-right EXTENDS the element instead of (with the
+     global border-box) eating into the icon width and collapsing it to zero on long casts. */
+  box-sizing: content-box;
   background-position: right center; background-repeat: no-repeat; background-size: contain;
 }
 .icon.ogcd .skill-img { width: var(--ogcd-size); height: var(--ogcd-size); opacity: .92; box-shadow: 0 0 0 1px rgba(255, 255, 255, .35); }
