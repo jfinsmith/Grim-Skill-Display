@@ -24,6 +24,7 @@
   "showDeathMarkers": true,
   "showGcdUptime": true,
   "showSummary": true,
+  "showFps": true,
   "openerCountdown": true,
   "meterMetric": "dps",
   "theme": "dark",

@@ -32,6 +32,7 @@ async function main() {
   wireHeaderButtons();
   applyVisuals();
   setupResponsiveSizing();
+  setupFps();
   subscribe((_, key) => { if (VISUAL_KEYS.has(key)) applyVisuals(); if (key === 'scale') sizeIcons(); });
 
   listenToACT(handleEvent);
@@ -58,7 +59,24 @@ function sizeIcons() {
   r.setProperty('--aa-size', `${gcd * 0.3}px`); // auto-attacks ~a quarter of a GCD
 }
 
-const VISUAL_KEYS = new Set(['showGrid', 'showBeatGrid', 'pinHeader', 'barDirection', 'displayTime', 'showAutoAttacks', 'showPetActions']);
+const VISUAL_KEYS = new Set(['showGrid', 'showBeatGrid', 'pinHeader', 'barDirection', 'displayTime', 'showAutoAttacks', 'showPetActions', 'showFps']);
+
+// Overlay render FPS (a health indicator for the overlay itself, not the game's FPS).
+function setupFps() {
+  const el = document.getElementById('fps');
+  let frames = 0;
+  let last = performance.now();
+  const loop = (now) => {
+    frames += 1;
+    if (now - last >= 1000) {
+      if (get('showFps')) el.textContent = `${Math.round((frames * 1000) / (now - last))} FPS`;
+      frames = 0;
+      last = now;
+    }
+    requestAnimationFrame(loop);
+  };
+  requestAnimationFrame(loop);
+}
 
 // Push settings that map to DOM classes / inline styles.
 function applyVisuals() {
@@ -76,6 +94,9 @@ function applyVisuals() {
   beat.classList.toggle('hide', !get('showBeatGrid'));
   aaLane.classList.toggle('hide', !get('showAutoAttacks'));
   petLane.classList.toggle('hide', !get('showPetActions'));
+  const fpsEl = document.getElementById('fps');
+  fpsEl.classList.toggle('hide', !get('showFps'));
+  if (!get('showFps')) fpsEl.textContent = '';
 }
 
 function wireHeaderButtons() {

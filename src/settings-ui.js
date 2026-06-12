@@ -36,6 +36,7 @@ const HELP = {
   showGcdUptime: 'Show your estimated GCD uptime % in the header (how much of the fight your GCD was rolling). The single best optimization metric.',
   showSummary: 'When combat ends, show a card summarizing GCDs, uptime, clips, positionals, deaths, and DoT uptime.',
   openerCountdown: 'Show a big 5→1 countdown synced to the in-game pull countdown (/countdown).',
+  showFps: 'Show this overlay\'s render frame-rate in the top-center of the header. This is the overlay\'s own FPS, not the game\'s.',
   meterMetric: 'What the top-right number shows. Also click the meter itself to cycle.',
   lang: 'Interface language.',
 };
@@ -76,6 +77,7 @@ const SCHEMA = [
   { key: 'showDeathMarkers', type: 'toggle', label: 'Death markers on bar' },
   { key: 'openerCountdown', type: 'toggle', label: 'Opener countdown' },
   { key: 'showSummary', type: 'toggle', label: 'Pull summary card' },
+  { key: 'showFps', type: 'toggle', label: 'Overlay FPS (header)' },
 
   { section: 'Meter' },
   { key: 'meterMetric', type: 'dropdown', label: 'Top-right metric', options: [['dps', 'Personal DPS'], ['hps', 'Healing /s'], ['dtps', 'Damage taken /s'], ['rdps', 'Raid DPS'], ['off', 'Off']] },
