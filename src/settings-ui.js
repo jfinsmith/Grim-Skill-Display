@@ -3,7 +3,8 @@
 // (toggles, +/- steppers, segmented buttons, colour swatches) because OverlayPlugin's embedded
 // browser doesn't render native <select>/<input type=color> popups and hijacks drag gestures
 // (sliders/scrollbars) to move the overlay window. An overlay can't open a separate OS window,
-// so this is as big as the overlay window is — make the window taller/wider if it feels cramped.
+// so this is as big as the overlay window is — make the window bigger and shrink the bar inside
+// it (Layout → bar width / height) if it feels cramped.
 
 import { get, set, subscribe } from './store.js';
 import { clearBars } from './bar.js';
@@ -12,11 +13,13 @@ import { Data } from './data.js';
 const TABS = [
   { id: 'layout', label: 'Layout', rows: [
     { key: 'barWidth', type: 'stepper', label: 'Bar width', unit: '%', min: 10, max: 100, step: 5,
-      help: 'Width of the bar inside the overlay window. To center the bar on your screen: stretch the overlay window across the whole screen, set this to ~60%, and set Bar position to Center.' },
-    { key: 'barAlign', type: 'seg', label: 'Bar position', options: [['left', 'Left'], ['center', 'Center'], ['right', 'Right']],
-      help: 'Where the bar sits inside the overlay window when it is narrower than 100%.' },
-    { key: 'uiLock', type: 'toggle', label: 'Lock layout',
-      help: 'Hides the resize corner and the center button so nothing shifts by accident. The window\'s own position and size are locked in OverlayPlugin (right-click the overlay → Lock).' },
+      help: 'Width of the bar as a share of the overlay window. The rest of the window stays transparent (and click-through once the overlay is locked). Make the window big and keep the bar small inside it — settings then open big too.' },
+    { key: 'barHeight', type: 'stepper', label: 'Bar height', unit: '%', min: 10, max: 100, step: 5,
+      help: 'Height of the bar as a share of the overlay window. Icons scale with the bar height.' },
+    { key: 'barAlign', type: 'seg', label: 'Horizontal position', options: [['left', 'Left'], ['center', 'Center'], ['right', 'Right']],
+      help: 'Where the bar sits inside the window when it is narrower than 100%.' },
+    { key: 'barVAlign', type: 'seg', label: 'Vertical position', options: [['top', 'Top'], ['center', 'Center'], ['bottom', 'Bottom']],
+      help: 'Where the bar sits inside the window when it is shorter than 100%.' },
     { key: 'displayTime', type: 'stepper', label: 'Display time', unit: 's', min: 4, max: 20, step: 1,
       help: 'How many seconds a skill takes to cross the bar. Lower = faster scroll and less history on screen.' },
     { key: 'scale', type: 'stepper', label: 'Icon scale', min: 0.5, max: 2.5, step: 0.1, dp: 1,

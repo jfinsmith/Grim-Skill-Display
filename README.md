@@ -35,25 +35,24 @@ and working.
    bigger if it feels cramped). Drag the bar to move it, drag the bottom-right corner to resize,
    then **lock the overlay** (right-click it in OverlayPlugin → *Lock*) when you're happy.
 
-### Centering the bar on screen
+### A small bar in a big window (recommended)
 
-OverlayPlugin doesn't let a page move its own window, so Grim does it the other way round:
-stretch the overlay window across the **whole width of your screen**, then click the
-**⇔ center** button in the header (or set *Layout → Bar width* to ~60% and *Bar position* to
-*Center*). The bar draws in the middle of the window, which is the middle of your screen; the
-rest of the window is transparent. Click the button again for full width.
+OverlayPlugin doesn't let a page move or resize its own window, so Grim treats the window as a
+transparent canvas and draws the bar as a box inside it:
 
-### Locking
+1. Make the overlay window **big** (say a third of your screen) and drag it where you want the
+   bar to be. Lock it in OverlayPlugin (right-click → **Lock**) when you're done.
+2. Click the **⊙ center** button in the header: the bar shrinks to 60% × 50% of the window and
+   sits in the middle. Fine-tune under *Settings → Layout* (width, height, horizontal / vertical
+   position). The rest of the window is transparent and click-through once locked.
+3. Settings now open across the **whole window**, not just the bar.
 
-The **🔒 lock** button freezes Grim's own layout controls (bar width / position, resize corner).
-The window's position and size can only be locked by OverlayPlugin itself: right-click the
-overlay → **Lock**, or tick *Lock overlay* in its config. Do both.
+Click the button again to fill the window.
 
-### Settings in their own window
+### Settings in their own window (alternative)
 
-The ⚙ gear opens settings inside the bar's window. For a big, separate settings window, add a
-**second overlay** in OverlayPlugin (New → Custom → MiniParse, name it `Grim Settings`) with
-the URL:
+If you'd rather keep the bar's window tight, add a **second overlay** in OverlayPlugin
+(New → Custom → MiniParse, name it `Grim Settings`) with the URL:
 
 ```
 https://jfinsmith.github.io/Grim-Skill-Display/settings.html

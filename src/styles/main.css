@@ -16,15 +16,14 @@
 
 * { margin: 0; padding: 0; border: 0; box-sizing: border-box; user-select: none; }
 html, body { height: 100vh; background: transparent; overflow: hidden; font-family: 'Inter', sans-serif; color: var(--grim-fg); }
+body { display: flex; flex-direction: column; } /* so .app's auto margins position it inside the window */
 .hide { display: none !important; }
 button { font: inherit; color: inherit; cursor: pointer; background: none; }
 
 /* A near-invisible background so the whole overlay always registers the mouse.
    Without it, a fully-transparent bar is hover/click-through in OverlayPlugin and you
    can only reveal the header by hovering an opaque icon. 0.02 alpha is imperceptible. */
-.app { position: relative; height: 100vh; display: flex; flex-direction: column; background: rgba(0, 0, 0, 0.02); width: 100%; margin: 0 auto; }
-/* layout lock: nothing that changes the bar's geometry stays clickable */
-.ui-locked .resize-handler, .ui-locked #btn-center { display: none !important; }
+.app { position: relative; height: 100vh; display: flex; flex-direction: column; background: rgba(0, 0, 0, 0.02); width: 100%; margin: auto; flex: none; }
 
 /* ---------- header ---------- */
 .header {

@@ -1,8 +1,9 @@
 {
   "pinHeader": true,
   "barWidth": 100,
+  "barHeight": 100,
   "barAlign": "center",
-  "uiLock": false,
+  "barVAlign": "center",
   "showAutoAttacks": true,
   "showPetActions": true,
   "displayTime": 10,
