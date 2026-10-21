@@ -19,7 +19,7 @@
   "CUL": [],
 
   "MIN": [],
-  "BOT": [],
+  "BTN": [],
   "FSH": [],
 
   "PLD": ["casting"],
@@ -48,5 +48,7 @@
   "RPR": ["mispositional", "casting"],
 
   "VPR": ["mispositional"],
-  "PCT": []
+  "PCT": ["casting"],
+
+  "BST": ["pet-action"]
 }

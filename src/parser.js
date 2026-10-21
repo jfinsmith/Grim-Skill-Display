@@ -148,8 +148,8 @@ function handleAction(code, ts, p) {
 
   // positional + GCD/clip only for real player skills (not items/mounts)
   if (lane === 'player' && action.isReal) {
-    if (get('checkPositionals') && rot.isPositional(actionID)) {
-      const ok = rot.checkPositional({ id: actionID }, p);
+    if (get('checkPositionals') && rot.isPositional(action)) {
+      const ok = rot.checkPositional(action, p);
       if (!ok) { classes.push('mispositional'); rot.stats.mispositional++; }
     }
     const gcd = Array.isArray(action.cooldownGroup) && action.cooldownGroup.includes(58);
@@ -239,4 +239,3 @@ function cleanup() {
 }
 
 export function fullReset() { cleanup(); clearBars(); }
-export const getPlayer = () => player;

@@ -7,7 +7,9 @@
 import { get } from './store.js';
 import { triggerDotAlert } from './features.js';
 
-const active = new Map(); // effectId -> {name, expireMs, duration, gainMs}
+// keyed by `${effectId}:${targetId}` so the same DoT on two enemies gets two pips and one
+// target dying / dropping it doesn't clear the other's timer.
+const active = new Map(); // key -> {name, expireMs, duration, gainMs}
 const uptime = new Map(); // name -> cumulative active ms (for the pull summary)
 const alerted = new Set(); // effectIds already alerted this expiry cycle
 let container = null;
@@ -26,21 +28,21 @@ export function onStatusGain(p, playerID) {
   if (srcId !== playerID || tgtId === playerID) return; // only player's debuffs on others
   const duration = parseFloat(p[2]);
   if (!(duration >= 5 && duration <= 120)) return;       // skip stuns / permanent / buffs
-  const effectId = parseInt(p[0], 16);
-  active.set(effectId, { name: p[1] || 'DoT', duration, expireMs: Date.now() + duration * 1000, gainMs: Date.now() });
-  alerted.delete(effectId);
+  const key = `${parseInt(p[0], 16)}:${tgtId}`;
+  active.set(key, { name: p[1] || 'DoT', duration, expireMs: Date.now() + duration * 1000, gainMs: Date.now() });
+  alerted.delete(key);
 }
 
 // from LogLine 30 (LosesEffect): same param layout
 export function onStatusLose(p, playerID) {
   const srcId = parseInt(p[3], 16);
   if (srcId !== playerID) return;
-  accrue(parseInt(p[0], 16));
+  accrue(`${parseInt(p[0], 16)}:${parseInt(p[5], 16)}`);
 }
 
-function accrue(effectId) {
-  const d = active.get(effectId);
-  if (d) { uptime.set(d.name, (uptime.get(d.name) || 0) + (Date.now() - d.gainMs)); active.delete(effectId); }
+function accrue(key) {
+  const d = active.get(key);
+  if (d) { uptime.set(d.name, (uptime.get(d.name) || 0) + (Date.now() - d.gainMs)); active.delete(key); }
 }
 
 // per-DoT uptime % for the summary; flush still-active ones first
@@ -70,12 +72,12 @@ function render() {
   for (const [id, d] of entries) {
     const remain = (d.expireMs - now) / 1000;
     if (remain <= 0) { active.delete(id); continue; }
-    seen.add(String(id));
+    seen.add(id);
     let pip = container.querySelector(`[data-dot="${id}"]`);
     if (!pip) {
       pip = document.createElement('div');
       pip.className = 'dot-pip';
-      pip.dataset.dot = String(id);
+      pip.dataset.dot = id;
       pip.innerHTML = `<span class="dot-name"></span><span class="dot-time"></span><div class="dot-bar"></div>`;
       container.appendChild(pip);
     }

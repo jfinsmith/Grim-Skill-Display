@@ -5,6 +5,7 @@
 
 import { get, set } from './store.js';
 import { clearBars } from './bar.js';
+import { Data } from './data.js';
 
 // help text shown as a tooltip on each control (the ? and the label)
 const HELP = {
@@ -116,7 +117,8 @@ export function buildSettings(onChange) {
   const reset = el('button', 'reset-btn'); reset.textContent = 'Reset all settings';
   reset.onclick = () => { localStorage.removeItem('grim-skill-display'); location.reload(); };
   footer.appendChild(reset);
-  const ver = el('div', 'version'); ver.textContent = 'Grim v1.1 · data current to live patch';
+  const ver = el('div', 'version');
+  ver.textContent = `Grim v1.2 · game data ${Data.meta.gameVersion || '?'} (synced ${Data.meta.syncedAt || '?'})`;
   footer.appendChild(ver);
   root.appendChild(footer);
 }

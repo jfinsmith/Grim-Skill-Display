@@ -1,7 +1,7 @@
 // header.js — header text, job icon, and rotation stat lines.
 
-import { Data } from './data.js';
-import { get } from './store.js';
+import { Data, jobIconPath, jobHasPositionals } from './data.js';
+import { get, setJob } from './store.js';
 import { lang } from './lang.js';
 import * as rot from './rotation.js';
 
@@ -19,8 +19,9 @@ export function initHeader() {
 }
 
 export function setJobIcon(job) {
-  const code = Data.jobOrder.indexOf(job);
-  jobIconEl.className = `job-icon classjob classjob-${code !== -1 ? String(code).padStart(2, '0') : '00'}`;
+  jobIconEl.onerror = () => { jobIconEl.onerror = null; jobIconEl.src = jobIconPath('ADV'); };
+  jobIconEl.src = jobIconPath(job);
+  setJob(job);
 }
 
 export function updateHeader(job, combat) {
@@ -32,8 +33,8 @@ export function updateHeader(job, combat) {
   toggleStat(uptimeEl, get('showGcdUptime') && up != null, up != null ? `uptime: ${up}%` : '');
 
   const flags = Data.classjob[job] || [];
-  // positional miss (jobs flagged 'mispositional')
-  toggleStat(mispEl, get('checkPositionals') && flags.includes('mispositional') && rot.stats.positional > 0,
+  // positional miss (jobs with any rear/flank skill in the data, or flagged 'mispositional')
+  toggleStat(mispEl, get('checkPositionals') && (jobHasPositionals(job) || flags.includes('mispositional')) && rot.stats.positional > 0,
     rot.positionalText(lang));
   // clip rate (all jobs)
   toggleStat(clipEl, get('trackClipping') && rot.stats.gcds > 0, rot.clipText());
@@ -46,10 +47,6 @@ function toggleStat(el, show, text) {
   if (!el) return;
   el.classList.toggle('hide', !show);
   if (show) el.textContent = text;
-}
-
-export function setActive(on) {
-  durationEl?.classList.toggle('active', on);
 }
 
 function parseDur(d) {

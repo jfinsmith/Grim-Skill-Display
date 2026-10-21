@@ -35,6 +35,10 @@ export function set(key, value) {
 
 function save() { localStorage.setItem(KEY, JSON.stringify(settings)); }
 
+// The job we're currently playing (from CombatData); drives the accent in the jobcolor theme.
+let currentJob = '';
+export function setJob(job) { currentJob = job; if (settings.theme === 'jobcolor') applyTheme(); }
+
 // Theme = CSS custom properties on :root, so all styling reacts instantly.
 export function applyTheme() {
   const r = document.documentElement.style;
@@ -45,7 +49,7 @@ export function applyTheme() {
   };
   const t = themes[settings.theme] || themes.dark;
   r.setProperty('--grim-bg', settings.bgColor || '#1a1a1add');
-  r.setProperty('--grim-accent', settings.accentColor || '#ff7b00');
+  r.setProperty('--grim-accent', settings.theme === 'jobcolor' ? jobAccent(currentJob) : (settings.accentColor || '#ff7b00'));
   r.setProperty('--grim-fg', t.fg);
   r.setProperty('--grim-grid', t.grid);
   r.setProperty('--grim-panel', t.panel);
@@ -60,6 +64,6 @@ const JOB_COLORS = {
   WHM: '#fff0dc', SCH: '#8657ff', AST: '#ffe74a', SGE: '#80a0f0',
   MNK: '#d5a823', DRG: '#4164cd', NIN: '#af1964', SAM: '#e46d04', RPR: '#965a90', VPR: '#108210',
   BRD: '#91ba5e', MCH: '#6ee1d6', DNC: '#e2b0af',
-  BLM: '#a579d6', SMN: '#2d9b78', RDM: '#e87b7b', PCT: '#fc92e1', BLU: '#2459ff',
+  BLM: '#a579d6', SMN: '#2d9b78', RDM: '#e87b7b', PCT: '#fc92e1', BLU: '#2459ff', BST: '#c9a04a',
 };
 export function jobAccent(job) { return JOB_COLORS[job] || (settings.accentColor || '#ff7b00'); }

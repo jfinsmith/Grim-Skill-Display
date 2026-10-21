@@ -5,10 +5,14 @@ import { get } from './store.js';
 import { getPullLog } from './features.js';
 
 let panel = null;
+let strip = null;   // the currently open strip (drag-scroll target); window listeners are bound once
+let drag = { down: false, startX: 0, startLeft: 0 };
 
 export function initReview() {
   panel = document.getElementById('review');
   document.getElementById('btn-review').addEventListener('click', toggleReview);
+  window.addEventListener('mousemove', (e) => { if (drag.down && strip) strip.scrollLeft = drag.startLeft - (e.clientX - drag.startX); });
+  window.addEventListener('mouseup', () => { drag.down = false; });
 }
 
 export function toggleReview() {
@@ -22,6 +26,7 @@ function openReview() {
   const head = `<div class="rev-head"><span>Pull review — ${log.length} actions (scroll / drag)</span>
     <i class="material-icons iconbutton" id="rev-close">close</i></div>`;
   if (!log.length) {
+    strip = null;
     panel.innerHTML = head + `<div class="rev-empty">No actions recorded yet — pull something first.</div>`;
   } else {
     const t0 = log[0].t;
@@ -41,9 +46,7 @@ function openReview() {
 }
 
 function enableDragScrollX(el) {
-  let down = false, startX = 0, startLeft = 0;
-  el.addEventListener('mousedown', (e) => { e.stopPropagation(); down = true; startX = e.clientX; startLeft = el.scrollLeft; });
-  window.addEventListener('mousemove', (e) => { if (down) el.scrollLeft = startLeft - (e.clientX - startX); });
-  window.addEventListener('mouseup', () => { down = false; });
+  strip = el;
+  el.addEventListener('mousedown', (e) => { e.stopPropagation(); drag = { down: true, startX: e.clientX, startLeft: el.scrollLeft }; });
   el.addEventListener('wheel', (e) => { el.scrollLeft += e.deltaY; e.preventDefault(); }, { passive: false });
 }

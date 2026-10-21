@@ -100,7 +100,7 @@ export function renderAction(action, opts = {}) {
   while (history.length > 200) history.shift();
 
   // auto-remove after it leaves the lane
-  setTimeout(() => { try { lane.removeChild(icon); } catch {} }, displayTime * 1000 + castTime * 100 + 200);
+  setTimeout(() => { try { lane.removeChild(icon); } catch {} }, displayTime * 1000 + castTime * 10 + 200);
   return icon;
 }
 

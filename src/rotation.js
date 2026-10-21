@@ -18,34 +18,26 @@ export function resetStats() {
   clip.lastGcdTime = -1; clip.minGap = Infinity;
 }
 
-/* ---------- positionals (kagami-derived; IDs may need per-patch refresh) ---------- */
-const REAR_FLANK = {
-  monk: [53, 56, 54, 74, 61, 66],
-  dragoon: [88, 79, 3554, 3556],
-  ninja: [2255, 3563],
-  samurai: [7481, 7482],
-  reaper: [24382, 24383],
-};
-const all = (o) => Object.values(o).flat();
-const POSITIONAL_IDS = new Set(all(REAR_FLANK));
+/* ---------- positionals ----------
+   Which skills have a rear/flank bonus comes from the data (actions.json `pos`, derived from
+   each skill's description by tools/resync.ps1), so new jobs and reworks need no code change.
 
-export function isPositional(id) { return POSITIONAL_IDS.has(id); }
+   Whether the bonus landed is read from the action's effect entries in the log line (kagami's
+   observation): a combo-type effect entry (type 0x1B) is written as "11B" when the positional
+   succeeded; for skills that are not combo follow-ups the bare "1B" entry only appears on a
+   success. SAM / RPR damage-flag fallbacks are kept from kagami for older log formats. */
+const LEGACY_DAMAGE_FLAGS = { 7481: ['4871', '2171'], 7482: ['4871', '2171'], 24382: ['D710', 'B710'], 24383: ['D710', 'B710'] };
+
+export function isPositional(action) { return !!action?.positional; }
 
 // returns true on success, false on miss; only call for positional actions.
 export function checkPositional(action, logParameter) {
-  const id = action.id;
   stats.positional++;
-  const flags = logParameter.slice(8, 22);
-  if (REAR_FLANK.monk.includes(id)) return flags.includes('1B');
-  if (REAR_FLANK.dragoon.includes(id)) return flags.includes(id === 88 ? '11B' : '1B');
-  if (REAR_FLANK.ninja.includes(id)) return flags.includes('11B');
-  if (REAR_FLANK.samurai.includes(id)) {
-    return flags.includes('11B') || (logParameter[6] || '').includes('4871') || (logParameter[6] || '').includes('2171');
-  }
-  if (REAR_FLANK.reaper.includes(id)) {
-    return (logParameter[6] || '').includes('D710') || (logParameter[6] || '').includes('B710');
-  }
-  return true;
+  const effects = logParameter.slice(8, 22).map((s) => String(s || '').toUpperCase());
+  if (effects.includes('11B')) return true;
+  if (!action.combo && effects.includes('1B')) return true;
+  const dmg = String(logParameter[6] || '').toUpperCase();
+  return (LEGACY_DAMAGE_FLAGS[action.id] || []).some((f) => dmg.includes(f));
 }
 
 /* ---------- GCD clip / drift ----------

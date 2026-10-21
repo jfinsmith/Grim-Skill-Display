@@ -1,5 +1,4 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
-@import '../../resources/classjob/classjob.css';
 
 :root {
   --grim-bg: #1a1a1add;
@@ -35,7 +34,8 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; }
 /* keep the header reachable even when the bar background is fully transparent:
    pin it (default on) and it always shows with its own background. */
 .header-left { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; }
-.job-icon { font-size: 30px; flex: none; }
+/* one PNG per job in resources/classjob/<ABBR>.png (header.js swaps the image on job change) */
+.job-icon { width: 32px; height: 32px; flex: none; object-fit: contain; display: block; }
 .header-text { min-width: 0; }
 .title-row { display: flex; align-items: baseline; gap: 8px; font-weight: 800; font-size: 13px; }
 .duration { color: var(--grim-accent); font-variant-numeric: tabular-nums; }

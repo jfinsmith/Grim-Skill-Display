@@ -36,6 +36,9 @@ async function main() {
   subscribe((_, key) => { if (VISUAL_KEYS.has(key)) applyVisuals(); if (key === 'scale') sizeIcons(); });
 
   listenToACT(handleEvent);
+  // dev hook: feed synthetic ACT events from the console, e.g.
+  //   grim.handleEvent({ type: 'LogLine', message: ['21', ts, '10000001', 'Me', '2C6B', 'Smash Axe', '40001234', 'Dummy', '710003', '1234', ...] })
+  window.grim = { handleEvent, fullReset };
   console.log('Grim Skill Display ready.');
 }
 

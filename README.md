@@ -9,7 +9,8 @@ feature-rich replacement for the unmaintained *Kagami* overlay.
 > **Why this exists:** Kagami fetched every icon live from the old XIVAPI and shipped a skill
 > list frozen at patch 7.0, so anything added since showed up as `??` with no icon. Grim
 > **bundles every icon and the full current skill list inside the repo**, so it never breaks
-> when an external service goes down — and re-runnable scripts re-sync it after each patch.
+> when an external service goes down — and a single re-runnable script re-syncs it after each
+> patch. Every job through **Beastmaster** (7.56) is covered, and new jobs need no code change.
 
 ---
 
@@ -118,17 +119,19 @@ language.
 ## Updating after a game patch
 
 Icons and skill data are bundled, so Grim keeps working through patches. When a patch adds new
-skills, re-sync the data — this needs [Node.js](https://nodejs.org) 18+:
+skills (or a new job), re-sync the data with the one script in `tools/` — plain Windows
+PowerShell, nothing to install:
 
-```bash
-node tools/01-fetch-actions.mjs         # refresh the full skill list
-node tools/02-fetch-icons.mjs           # download only the newly-referenced icons
-node tools/03-fetch-consumables.mjs     # refresh pots / tinctures
-node tools/04-fetch-mounts.mjs          # refresh mounts
-node tools/05-fetch-generalactions.mjs  # refresh general actions (Desynthesis, Repair, ...)
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File tools/resync.ps1
 
-git add resources && git commit -m "Resync data for patch X.Y" && git push
+git add resources; git commit -m "Resync data for patch X.Y"; git push
 ```
+
+It rebuilds the skill / item / mount / general-action tables, downloads only the icons that
+aren't on disk yet, fetches a job icon for any new job, and writes `resources/data/meta.json`
+(the game version shown in the settings footer). Positionals are read from each skill's own
+description, so a reworked or brand-new rear/flank skill is picked up automatically.
 
 Data comes from [XIVAPI v2](https://v2.xivapi.com/). All FFXIV content is © SQUARE ENIX.
 
@@ -150,16 +153,16 @@ src/                      ES modules — no build step
   review.js                pause & scrollback
   header.js  settings-ui.js  tooltip.js  snapshot.js  store.js  data.js  lang.js
 resources/
-  data/*.json              actions, items, mounts, jobs, raid buffs, language, settings
-  icons/*.png              ~2,700 bundled HD icons (skills, items, mounts)
-  classjob/                job-icon spritesheet
-tools/*.mjs                data-regeneration scripts (run with Node; not shipped to users)
+  data/*.json              actions, items, mounts, jobs, raid buffs, language, settings, meta
+  icons/*.png              ~2,800 bundled HD icons (skills, items, mounts)
+  classjob/<ABBR>.png      one icon per job (PLD.png, BST.png, ...)
+tools/resync.ps1           data-regeneration script (PowerShell; not shipped to users)
 docs/img/                  screenshots used in this README
 ```
 
-No bundler, no `npm install` for the overlay itself — it's plain HTML/CSS/ES-modules served
-straight from GitHub Pages. The `tools/` scripts are the only thing that uses Node, and only when
-you want to refresh the bundled data.
+No bundler, no build step — it's plain HTML/CSS/ES-modules served straight from GitHub Pages.
+For hacking on it locally, `window.grim.handleEvent(...)` in the browser console feeds the
+overlay a synthetic ACT event.
 
 ---
 
@@ -168,8 +171,10 @@ you want to refresh the bundled data.
 - **Raid-buff highlight** and the **opener countdown** match by English text, so on non-English
   clients you'll want to add the localized status / system-message names (see the comment in
   `raidbuffs.json`).
-- **Positional detection** covers MNK / DRG / NIN / SAM / RPR via known action IDs; if a positional
-  looks wrong after a patch, the IDs in `src/rotation.js` may need a refresh.
+- **Positional detection** covers every rear/flank skill in the data (MNK / DRG / NIN / SAM / RPR
+  / VPR). Whether the bonus landed is read from the action-effect entries in the log line, which
+  is a heuristic inherited from Kagami — if a positional looks wrong, see `checkPositional` in
+  `src/rotation.js`.
 - **Downtime markers** are an approximation (long gaps between GCDs) — turn them off if they're
   noisy for your content.
 
