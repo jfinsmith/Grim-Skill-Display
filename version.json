@@ -1,5 +1,5 @@
 {
-  "version": "1.6.0",
+  "version": "1.7.0",
   "_comment": "Bump `version` on every release. The bootstrap in index.html / settings.html compares it to the last-seen version and re-downloads every file below past OverlayPlugin's browser cache. New files must be listed here.",
   "files": [
     "./index.html",

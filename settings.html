@@ -5,8 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Grim Skill Display — Settings</title>
   <link rel="icon" href="data:," />
-  <!-- OverlayPlugin bridge: in a normal browser it connects over ?OVERLAY_WS=… (WSServer) -->
-  <script src="https://ngld.github.io/OverlayPlugin/assets/shared/common.min.js"></script>
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
   <link rel="stylesheet" href="./src/styles/main.css" />
   <style>
@@ -17,8 +15,8 @@
   </style>
 </head>
 <body>
-  <!-- Opened by the bar's ⚙ button in your real browser (via OverlayPlugin's WSServer), or
-       usable as a second overlay inside OverlayPlugin. Changes apply to the bar instantly. -->
+  <!-- Optional: add this page as a second overlay in OverlayPlugin to edit settings in their
+       own window. Changes apply to the bar instantly. -->
   <aside class="settings" id="settings"></aside>
   <div class="main hide" id="main"></div>
   <script>

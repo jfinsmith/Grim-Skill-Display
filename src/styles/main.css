@@ -9,9 +9,10 @@
   --grim-panel: #202024;
   --grim-scale: 1;
   --grim-icon-radius: 6px;
-  --gcd-size: 50px;
-  --ogcd-size: 34px;
-  --aa-size: 16px;
+  --gcd-size: 46px;
+  --ogcd-size: 33px;
+  --aa-size: 14px;
+  --bar-height: 110px;
 }
 
 * { margin: 0; padding: 0; border: 0; box-sizing: border-box; user-select: none; }
@@ -22,7 +23,8 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; }
 /* A near-invisible background so the whole overlay always registers the mouse.
    Without it, a fully-transparent bar is hover/click-through in OverlayPlugin and you
    can only reveal the header by hovering an opaque icon. 0.02 alpha is imperceptible. */
-.app { position: relative; height: 100vh; display: flex; flex-direction: column; background: rgba(0, 0, 0, 0.02); }
+/* bar + header hug the bottom of the window; any extra height above stays empty */
+.app { position: relative; height: 100vh; display: flex; flex-direction: column; justify-content: flex-end; background: rgba(0, 0, 0, 0.02); }
 
 /* ---------- header ---------- */
 .header {
@@ -59,7 +61,7 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; }
 .iconbutton.active { color: var(--grim-accent); background: rgba(255, 123, 0, .18); }
 
 /* ---------- main bar ---------- */
-.main { position: relative; flex: 1; min-height: 0; }
+.main { position: relative; flex: none; height: var(--bar-height); }
 .main.dimmed .skilldisplayer { filter: brightness(.4); }
 .skilldisplayer {
   position: relative; height: 100%; background: var(--grim-bg); overflow: hidden;
@@ -84,8 +86,8 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; }
    so the main row is always vertically centred regardless of which lanes are shown. */
 .lane { position: absolute; left: 0; right: 0; }
 .player-lane { top: 0; bottom: 0; z-index: 2; }
-.auto-attack-lane { top: 5%; height: 20%; z-index: 1; }   /* nudged down off the top edge, clear of the GCD row */
-.pet-lane { bottom: 2%; height: 24%; z-index: 1; }
+.auto-attack-lane { top: 8%; height: 18%; z-index: 1; }   /* room above for the interval number */
+.pet-lane { bottom: 3%; height: 30%; z-index: 1; }
 
 /* travelling icon — vertically centred in its lane */
 .icon {
@@ -110,11 +112,13 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; }
 .icon.aa .skill-img { width: var(--aa-size); height: var(--aa-size); box-shadow: none; opacity: .9; border-radius: 3px; }
 .skill-img.casting { background-color: rgba(255, 255, 255, .25); }
 
+/* name label sits INSIDE the icon (bottom strip) so it's never clipped by the lane edge */
 .icon-label {
-  position: absolute; bottom: -7px; left: 50%; transform: translateX(-50%);
-  max-width: 150%; text-align: center; line-height: 1.2; pointer-events: none;
-  font-weight: 800; color: #fff; background: rgba(0, 0, 0, .82);
-  padding: 1px 4px; border-radius: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+  max-width: 240%; text-align: center; line-height: 1.25; pointer-events: none;
+  font-weight: 800; color: #fff; background: rgba(0, 0, 0, .78);
+  padding: 1px 4px; border-radius: 3px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .aa-interval {
   position: absolute; top: -7px; right: -2px; font-weight: 800;

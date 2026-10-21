@@ -2,7 +2,7 @@
 // Battle-log handling is ported from kagami (handleAction / parseMessage) and extended
 // with: local item lookup, GCD/clip tracking, live DoT detection, multi-metric meter.
 
-import { Data, lookupAction, lookupItem, lookupMount } from './data.js';
+import { lookupAction, lookupItem, lookupMount, iconForName, isPlaceholderIcon } from './data.js';
 import { get } from './store.js';
 import { renderAction, renderAutoAttack, appendErrorIcon, clearBars } from './bar.js';
 import { onStatusGain, onStatusLose, clearDots } from './dots.js';
@@ -118,6 +118,9 @@ function handleAction(code, ts, p) {
   // resolve action / item / mount into a renderable
   const action = resolveAction(actionID, p);
   action.actorID = actorID;
+  // a pet / familiar skill the data has no icon for at all: the pet-command icon (000531)
+  // beats the game's blue "no icon" placeholder
+  if (lane === 'pet' && isPlaceholderIcon(action.icon)) action.icon = '000531';
   let ct = castTime;
   if (lane === 'player' && ct > 66) ct -= 66; // kagami: trim the ~animation lock
 
@@ -200,14 +203,16 @@ function resolveAction(actionID, p) {
     return { id: actionID, name: it?.name || p[3] || 'Item', icon: it?.icon || '000044', cooldownGroup: [0, 0], isReal: false };
   }
   const a = lookupAction(actionID);
-  // "General actions" (Desynthesis, Repair, Materia Extraction, etc.) log against an empty
-  // combat-Action row -> the 000405 fallback icon. Recover the real icon by the logged name.
-  const generalIcon = Data.generalActions[p[3]];
+  // Rows without an icon of their own (monster / familiar skills, general actions such as
+  // Desynthesis, duplicate rows) get the icon of a same-named row that has one.
   if (a) {
-    if (a.icon === '000405' && generalIcon) return { ...a, icon: generalIcon, name: a.name || p[3], isReal: true };
+    if (isPlaceholderIcon(a.icon)) {
+      const name = a.name || p[3];
+      return { ...a, name, icon: iconForName(name) || '000405', isReal: true };
+    }
     return { ...a, isReal: true };
   }
-  return { id: actionID, name: p[3] || '???', icon: generalIcon || '000405', cooldownGroup: [0, 0], isReal: true };
+  return { id: actionID, name: p[3] || '???', icon: iconForName(p[3]) || '000405', cooldownGroup: [0, 0], isReal: true };
 }
 
 /* ---------------- combat data ---------------- */

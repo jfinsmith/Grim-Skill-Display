@@ -33,12 +33,10 @@ and working.
 4. Click **Reload**. The bar appears — hit a striking dummy and your skills scroll across it.
 5. Drag the bar to move it, drag the bottom-right corner to resize, then **lock the overlay**
    (right-click it in OverlayPlugin → *Lock*) when you're happy.
-6. **Settings open in your normal browser** (big window, tabs, an explanation under every
-   setting) when you click the **⚙ gear**. This needs OverlayPlugin's WebSocket server: in ACT
-   → Plugins → OverlayPlugin.dll → **WSServer** tab, click **Start** and tick **Auto-start** so
-   it's always on. Without it, the gear opens a compact panel inside the overlay instead.
-
-Every change you make in the browser applies to the bar instantly.
+6. Click the **⚙ gear** (in the header, below the bar) for settings. The panel fills the whole
+   overlay window — the bar keeps its size and hugs the bottom, so **drag the window taller**
+   whenever you want more room for settings, then shrink it back (or just leave it tall: the
+   empty part is transparent).
 
 > **Updates:** Grim checks `version.json` on every load and re-downloads its own files when a
 > new version is out, so OverlayPlugin's stubborn browser cache can't serve stale code — keep
@@ -120,8 +118,8 @@ pull, with timestamps. Drag or scroll the strip.
 
 ![Settings panel](docs/img/settings.png)
 
-Everything is configurable from the settings page (opens in your browser, see *Quick start*),
-grouped into **Layout · Look · Tracking · DoTs & buffs · Analysis**, with a one-line explanation
+Everything is configurable from the settings panel (⚙ in the header; make the window taller for
+room), grouped into **Layout · Look · Tracking · DoTs & buffs · Analysis**, with a one-line explanation
 under every setting: themes (dark / light / job-color), accent + background color, icon shape
 and scale, display time, scroll direction, labels, every tracker and analysis feature, and the
 meter metric.
@@ -157,7 +155,7 @@ Data comes from [XIVAPI v2](https://v2.xivapi.com/). All FFXIV content is © SQU
 
 ```
 index.html               the bar overlay (self-updating bootstrap + OverlayPlugin bridge)
-settings.html            the settings page (opened in your browser by the ⚙ button, or as a 2nd overlay)
+settings.html            optional: the settings panel as a 2nd overlay
 version.json             overlay version + file list; bump `version` on every release
 src/                      ES modules — no build step
   app.js                   orchestrator / startup
@@ -191,8 +189,7 @@ overlay a synthetic ACT event.
   clients you'll want to add the localized status / system-message names (see the comment in
   `raidbuffs.json`).
 - An overlay page **cannot move, resize or lock its own window** — OverlayPlugin exposes no API
-  for it. Position and size the overlay in ACT. The settings window is opened through
-  OverlayPlugin's `openWebsiteWithWS` handler, which is why it needs the WSServer running.
+  for it. Position and size the overlay in ACT.
 - **Positional detection** covers every rear/flank skill in the data (MNK / DRG / NIN / SAM / RPR
   / VPR). Whether the bonus landed is read from the action-effect entries in the log line, which
   is a heuristic inherited from Kagami — if a positional looks wrong, see `checkPositional` in

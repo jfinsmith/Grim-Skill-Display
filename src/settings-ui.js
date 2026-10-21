@@ -2,8 +2,8 @@
 // is tabbed, and every row carries its own explanation. All controls are CLICK-based
 // (toggles, +/- steppers, segmented buttons, colour swatches) because OverlayPlugin's embedded
 // browser doesn't render native <select>/<input type=color> popups and hijacks drag gestures
-// (sliders/scrollbars) to move the overlay window. Normally this panel is shown as its own page
-// (settings.html) in the user's real browser; inside the overlay it is only the fallback.
+// (sliders/scrollbars) to move the overlay window. The panel fills the overlay window, so make
+// the window taller for more room (the bar keeps its size and hugs the bottom).
 
 import { get, set, subscribe } from './store.js';
 import { clearBars } from './bar.js';

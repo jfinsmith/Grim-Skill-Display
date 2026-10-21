@@ -23,7 +23,6 @@ function listenOverlayPlugin(callback) {
   addOverlayListener('CombatData', (e) => callback({ type: 'CombatData', message: { ...e } }));
   addOverlayListener('LogLine', (e) => callback({ type: 'LogLine', message: [...e.line] }));
   addOverlayListener('ChangePrimaryPlayer', (e) => callback({ type: 'ChangePrimaryPlayer', message: { ...e } }));
-  addOverlayListener('BroadcastMessage', (e) => callback({ type: 'BroadcastMessage', message: { ...e } }));
   startOverlayEvents();
 }
 

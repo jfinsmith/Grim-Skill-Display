@@ -46,6 +46,34 @@ export const iconPath = (num) => (num ? `./resources/icons/${num}.png` : '');
 // Job icon by ACT abbreviation (PLD, BST, ...).
 export const jobIconPath = (abbr) => `./resources/classjob/${abbr}.png`;
 
+// Many rows the log reports have no icon of their own (the game's placeholder 000405): monster
+// and Beastmaster-familiar skills, "general actions", duplicate rows. Usually another row with
+// the same name does have one, so resolve icons by name as a fallback. Built once, lazily.
+const PLACEHOLDER = new Set(['', '000405', '000000']);
+export const isPlaceholderIcon = (i) => PLACEHOLDER.has(i || '');
+// Names with no iconed row anywhere in the data. Beastmaster's combo finishers use the
+// affinity icons the familiar's own skills carry (Volant green, Rampant red, Durant blue,
+// Eldritch gold).
+const NAME_OVERRIDES = {
+  'Instinctual Combo: Volant': '003909',
+  'Instinctual Combo: Rampant': '003906',
+  'Instinctual Combo: Durant': '003907',
+  'Instinctual Combo: Eldritch': '003908',
+};
+let iconByName = null;
+export function iconForName(name) {
+  if (!name) return '';
+  if (NAME_OVERRIDES[name]) return NAME_OVERRIDES[name];
+  if (!iconByName) {
+    iconByName = new Map();
+    for (const a of Object.values(Data.actions)) {
+      if (!a.n || isPlaceholderIcon(a.i)) continue;
+      if (!iconByName.has(a.n) || a.p === 1) iconByName.set(a.n, a.i); // player rows win
+    }
+  }
+  return iconByName.get(name) || Data.generalActions[name] || '';
+}
+
 // Does this job have any rear/flank skill? Derived from the data, cached per job.
 const posJobs = new Map();
 export function jobHasPositionals(job) {

@@ -3,9 +3,9 @@
 
 import listenToACT from './act.js';
 import { loadData } from './data.js';
-import { loadSettings, get, set, subscribe, getSettings, applyIncoming } from './store.js';
+import { loadSettings, get, set, subscribe } from './store.js';
 import { initLanes } from './bar.js';
-import { initHeader, toast } from './header.js';
+import { initHeader } from './header.js';
 import { initMeter } from './meter.js';
 import { initDots } from './dots.js';
 import { initSnapshot } from './snapshot.js';
@@ -35,31 +35,26 @@ async function main() {
   setupFps();
   subscribe((_, key) => { if (VISUAL_KEYS.has(key)) applyVisuals(); if (key === 'scale') sizeIcons(); });
 
-  listenToACT((e) => (e.type === 'BroadcastMessage' ? handleBroadcast(e.message) : handleEvent(e)));
+  listenToACT(handleEvent);
   // dev hook: feed synthetic ACT events from the console, e.g.
   //   grim.handleEvent({ type: 'LogLine', message: ['21', ts, '10000001', 'Me', '2C6B', 'Smash Axe', '40001234', 'Dummy', '710003', '1234', ...] })
   window.grim = { handleEvent, fullReset };
   console.log('Grim Skill Display ready.');
 }
 
-// Icon sizes scale with the overlay's height so the bar never clips and stays centered.
-function setupResponsiveSizing() {
-  const sd = document.getElementById('skilldisplayer');
-  const ro = new ResizeObserver(() => sizeIcons());
-  ro.observe(sd);
-  sizeIcons();
-}
+// The bar has a fixed height driven by the icon scale and sits at the bottom of the overlay
+// window, above the header. Extra window height stays empty, so you can make the window tall
+// (to give the settings panel room) without the bar growing with it.
+function setupResponsiveSizing() { sizeIcons(); }
 
 function sizeIcons() {
-  const sd = document.getElementById('skilldisplayer');
-  if (!sd) return;
-  const h = sd.clientHeight || 80;
   const scale = get('scale') || 1;
-  const gcd = Math.max(16, h * 0.42 * scale); // sized to the full overlay height; main lane is centered
+  const gcd = Math.round(46 * scale);
   const r = document.documentElement.style;
   r.setProperty('--gcd-size', `${gcd}px`);
-  r.setProperty('--ogcd-size', `${gcd * 0.72}px`);
-  r.setProperty('--aa-size', `${gcd * 0.3}px`); // auto-attacks ~a quarter of a GCD
+  r.setProperty('--ogcd-size', `${Math.round(gcd * 0.72)}px`);
+  r.setProperty('--aa-size', `${Math.round(gcd * 0.3)}px`); // auto-attacks ~a quarter of a GCD
+  r.setProperty('--bar-height', `${Math.round(gcd * 2.4)}px`); // AA lane + main lane + pet lane
 }
 
 const VISUAL_KEYS = new Set(['showGrid', 'showBeatGrid', 'pinHeader', 'barDirection', 'displayTime', 'showAutoAttacks', 'showPetActions', 'showFps']);
@@ -102,33 +97,9 @@ function applyVisuals() {
   if (!get('showFps')) fpsEl.textContent = '';
 }
 
-// Settings open in the user's real browser: OverlayPlugin's `openWebsiteWithWS` launches a URL
-// with its WebSocket address appended, and settings.html talks back over that socket
-// (`broadcast` → BroadcastMessage). Needs OverlayPlugin → WSServer running; otherwise, or when
-// not running inside OverlayPlugin at all, fall back to the in-overlay modal.
-async function openSettings() {
-  if (typeof callOverlayHandler !== 'function' || !window.OverlayPluginApi) return toggleSettings();
-  const url = new URL('settings.html', location.href).href;
-  let r = null;
-  try { r = await callOverlayHandler({ call: 'openWebsiteWithWS', url }); } catch {}
-  if (r && r.success) return;
-  toggleSettings(true);
-  toast('For settings in a browser window: ACT → OverlayPlugin → WSServer → Start (tick Auto-start)', 8000);
-}
-
-// settings.html (in a browser, over the WebSocket) asks for / pushes settings
-function handleBroadcast(m) {
-  if (!m || m.source !== 'grim-settings' || !m.msg) return;
-  if (m.msg.type === 'get') {
-    callOverlayHandler({ call: 'broadcast', source: 'grim-bar', msg: { type: 'settings', settings: getSettings() } });
-  } else if (m.msg.type === 'settings' && m.msg.settings) {
-    applyIncoming(m.msg.settings);
-  }
-}
-
 function wireHeaderButtons() {
   document.getElementById('btn-pin').onclick = () => set('pinHeader', !get('pinHeader'));
-  document.getElementById('btn-settings').onclick = () => openSettings();
+  document.getElementById('btn-settings').onclick = () => toggleSettings();
   document.getElementById('btn-reset').onclick = () => {
     try { window.OverlayPluginApi?.endEncounter?.(); } catch {}
     fullReset();
