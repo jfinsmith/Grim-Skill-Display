@@ -12,10 +12,11 @@ export const Data = {
   raidbuffs: new Set(), // raid-buff status names
   generalActions: {}, // general-action Name -> icon (Desynthesis, Repair, etc.)
   meta: {},      // {gameVersion, syncedAt} written by tools/resync.ps1
+  version: '',   // overlay version from version.json
 };
 
 export async function loadData() {
-  const [actions, items, mounts, classjob, lang, settings, raidbuffs, generalActions, meta] = await Promise.all([
+  const [actions, items, mounts, classjob, lang, settings, raidbuffs, generalActions, meta, ver] = await Promise.all([
     json('./resources/data/actions.json'),
     json('./resources/data/items.json'),
     json('./resources/data/mounts.json'),
@@ -25,7 +26,9 @@ export async function loadData() {
     json('./resources/data/raidbuffs.json'),
     json('./resources/data/generalactions.json'),
     json('./resources/data/meta.json').catch(() => ({})),
+    json('./version.json').catch(() => ({})),
   ]);
+  Data.version = ver.version || '';
   Data.actions = actions;
   Data.items = items;
   Data.mounts = mounts;

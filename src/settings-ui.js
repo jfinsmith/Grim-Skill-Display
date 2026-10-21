@@ -5,7 +5,7 @@
 // (sliders/scrollbars) to move the overlay window. An overlay can't open a separate OS window,
 // so this is as big as the overlay window is — make the window taller/wider if it feels cramped.
 
-import { get, set } from './store.js';
+import { get, set, subscribe } from './store.js';
 import { clearBars } from './bar.js';
 import { Data } from './data.js';
 
@@ -93,26 +93,38 @@ const TABS = [
 let onChangeCb = null;
 let activeTab = 'layout';
 let root = null;
+let standalone = false; // settings.html: the page IS the panel, nothing to close
 const painters = []; // every control's "refresh from store" fn, run when the modal opens (header buttons change settings too)
 
-export function buildSettings(onChange) {
+export function buildSettings(onChange, opts = {}) {
   onChangeCb = onChange;
+  standalone = !!opts.standalone;
   root = document.getElementById('settings');
   root.innerHTML = '';
   root.addEventListener('mousedown', (e) => e.stopPropagation()); // never let OverlayPlugin drag the window from inside the modal
-  root.addEventListener('click', (e) => { if (e.target === root) toggleSettings(false); });
-  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') toggleSettings(false); });
+  if (!standalone) {
+    root.addEventListener('click', (e) => { if (e.target === root) toggleSettings(false); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') toggleSettings(false); });
+  }
+  // settings changed from the other window (bar <-> settings.html): refresh the controls
+  subscribe(() => painters.forEach((p) => p()));
 
   const box = el('div', 'settings-box');
   root.appendChild(box);
 
   // header
   const head = el('div', 'settings-head');
-  const h = el('span', 'settings-title'); h.textContent = 'Grim — settings';
-  const close = el('i', 'material-icons iconbutton'); close.textContent = 'close';
-  close.setAttribute('data-tip', 'Close settings (Esc)');
-  close.onclick = () => toggleSettings(false);
-  head.append(h, close);
+  const h = el('span', 'settings-title'); h.textContent = standalone ? 'Grim Skill Display — settings' : 'Grim — settings';
+  head.appendChild(h);
+  if (standalone) {
+    const note = el('span', 'settings-note'); note.textContent = 'changes apply to the bar instantly';
+    head.appendChild(note);
+  } else {
+    const close = el('i', 'material-icons iconbutton'); close.textContent = 'close';
+    close.setAttribute('data-tip', 'Close settings (Esc)');
+    close.onclick = () => toggleSettings(false);
+    head.appendChild(close);
+  }
   box.appendChild(head);
 
   // tabs
@@ -137,7 +149,7 @@ export function buildSettings(onChange) {
   // footer
   const footer = el('div', 'settings-footer');
   const ver = el('div', 'version');
-  ver.textContent = `Grim v1.3 · game data ${Data.meta.gameVersion || '?'} (synced ${Data.meta.syncedAt || '?'})`;
+  ver.textContent = `Grim v${Data.version || '?'} · game data ${Data.meta.gameVersion || '?'} (synced ${Data.meta.syncedAt || '?'})`;
   const reset = el('button', 'reset-btn'); reset.textContent = 'Reset all settings';
   reset.onclick = () => { localStorage.removeItem('grim-skill-display'); location.reload(); };
   footer.append(ver, reset);
@@ -265,6 +277,7 @@ function normalizeHex(c) {
 }
 
 export function toggleSettings(force) {
+  if (standalone) return;
   const panel = document.getElementById('settings');
   const main = document.getElementById('main');
   const show = force ?? panel.classList.contains('hide');

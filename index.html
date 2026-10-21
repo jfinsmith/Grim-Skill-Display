@@ -78,6 +78,24 @@
   <aside class="settings hide" id="settings"></aside>
   <span class="resize-handler"></span>
 
-  <script type="module" src="./src/app.js"></script>
+  <!-- Self-updating bootstrap. OverlayPlugin's embedded browser caches hard and its Reload
+       doesn't revalidate, so: read version.json (never cached), and if it changed since the
+       last run re-download every listed file past the cache, then start the app. -->
+  <script>
+    (async () => {
+      const KEY = 'grim-version';
+      try {
+        const m = await (await fetch('./version.json', { cache: 'no-store' })).json();
+        let have = null;
+        try { have = localStorage.getItem(KEY); } catch {}
+        if (have !== m.version) {
+          await Promise.all((m.files || []).map((f) => fetch(f, { cache: 'reload' }).catch(() => {})));
+          try { localStorage.setItem(KEY, m.version); } catch {}
+          if (have !== null) { location.reload(); return; } // index.html itself was refreshed too
+        }
+      } catch {}
+      import('./src/app.js');
+    })();
+  </script>
 </body>
 </html>

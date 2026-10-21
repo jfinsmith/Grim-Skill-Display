@@ -139,4 +139,5 @@ function wireHeaderButtons() {
   // btn-snapshot handled in snapshot.js
 }
 
-window.addEventListener('load', main);
+// imported by the bootstrap in index.html, usually after `load` has already fired
+if (document.readyState === 'complete') main(); else window.addEventListener('load', main);

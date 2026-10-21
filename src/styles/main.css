@@ -167,6 +167,7 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; }
 }
 .settings-head { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; border-bottom: 1px solid rgba(255, 255, 255, .1); flex: none; }
 .settings-title { font-weight: 800; font-size: 14px; }
+.settings-note { font-size: 11px; opacity: .6; }
 .settings-tabs { display: flex; gap: 2px; padding: 6px 10px 0; border-bottom: 1px solid rgba(255, 255, 255, .1); flex: none; overflow-x: auto; }
 .settings-tab { padding: 6px 12px; border-radius: 6px 6px 0 0; font-weight: 600; opacity: .65; white-space: nowrap; border-bottom: 2px solid transparent; }
 .settings-tab:hover { opacity: 1; background: rgba(255, 255, 255, .05); }
@@ -192,13 +193,13 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; }
 
 /* stepper */
 .stepper { display: flex; align-items: center; gap: 6px; flex: none; }
-.step-btn { width: 28px; height: 28px; border-radius: 6px; background: #15151a; border: 1px solid rgba(255, 255, 255, .15); font-weight: 800; font-size: 16px; line-height: 1; }
+.step-btn { width: 28px; height: 28px; border-radius: 6px; background: #15151a; color: #f2f2f2; border: 1px solid rgba(255, 255, 255, .15); font-weight: 800; font-size: 16px; line-height: 1; }
 .step-btn:hover { border-color: var(--grim-accent); color: var(--grim-accent); }
 .step-val { min-width: 48px; text-align: center; font-variant-numeric: tabular-nums; font-weight: 600; }
 
 /* segmented buttons (replaces dropdowns) */
 .seg { display: inline-flex; flex-wrap: wrap; justify-content: flex-end; gap: 3px; }
-.seg button { padding: 5px 10px; border-radius: 6px; background: #15151a; border: 1px solid rgba(255, 255, 255, .15); font-size: 12px; white-space: nowrap; }
+.seg button { padding: 5px 10px; border-radius: 6px; background: #15151a; color: #f2f2f2; border: 1px solid rgba(255, 255, 255, .15); font-size: 12px; white-space: nowrap; }
 .seg button:hover { border-color: var(--grim-accent); }
 .seg button.sel { background: var(--grim-accent); border-color: var(--grim-accent); color: #111; font-weight: 700; }
 
@@ -208,7 +209,7 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; }
 .swatch { width: 24px; height: 24px; border-radius: 6px; border: 2px solid transparent; }
 .swatch:hover { border-color: rgba(255, 255, 255, .5); }
 .swatch.sel { border-color: #fff; box-shadow: 0 0 0 1px var(--grim-accent); }
-.hex-input { background: #15151a; color: var(--grim-fg); border: 1px solid rgba(255, 255, 255, .15); border-radius: 5px; padding: 5px 7px; width: 130px; font-family: monospace; user-select: text; }
+.hex-input { background: #15151a; color: #f2f2f2; border: 1px solid rgba(255, 255, 255, .15); border-radius: 5px; padding: 5px 7px; width: 130px; font-family: monospace; user-select: text; }
 .hex-input:focus { border-color: var(--grim-accent); outline: none; }
 
 /* ---------- raid-buff glow ---------- */

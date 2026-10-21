@@ -35,6 +35,19 @@ export function set(key, value) {
 
 function save() { localStorage.setItem(KEY, JSON.stringify(settings)); }
 
+// Another window on the same origin (settings.html running as its own overlay) saved
+// settings: pick up every changed key and notify as if it had been set() here.
+window.addEventListener('storage', (e) => {
+  if (e.key !== KEY || !e.newValue) return;
+  let incoming;
+  try { incoming = JSON.parse(e.newValue); } catch { return; }
+  const changed = Object.keys({ ...settings, ...incoming }).filter((k) => JSON.stringify(settings[k]) !== JSON.stringify(incoming[k]));
+  if (!changed.length) return;
+  settings = { ...Data.settings, ...incoming };
+  applyTheme();
+  changed.forEach(notify);
+});
+
 // The job we're currently playing (from CombatData); drives the accent in the jobcolor theme.
 let currentJob = '';
 export function setJob(job) { currentJob = job; if (settings.theme === 'jobcolor') applyTheme(); }

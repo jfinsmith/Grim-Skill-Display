@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Grim Skill Display — Settings</title>
+  <link rel="icon" href="data:," />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
+  <link rel="stylesheet" href="./src/styles/main.css" />
+  <style>
+    /* standalone settings window: the modal is the whole page, no dimmed bar behind it */
+    body { background: var(--grim-panel); }
+    .settings { position: static; height: 100vh; padding: 0; background: transparent; }
+    .settings-box { max-width: none; border: 0; border-radius: 0; box-shadow: none; }
+  </style>
+</head>
+<body>
+  <!-- Add this page as a SECOND overlay in OverlayPlugin (any size you like) to edit settings
+       in their own window. Changes apply to the bar overlay instantly. -->
+  <aside class="settings" id="settings"></aside>
+  <div class="main hide" id="main"></div>
+  <script>
+    (async () => {
+      const KEY = 'grim-version';
+      try {
+        const m = await (await fetch('./version.json', { cache: 'no-store' })).json();
+        let have = null;
+        try { have = localStorage.getItem(KEY); } catch {}
+        if (have !== m.version) {
+          await Promise.all((m.files || []).map((f) => fetch(f, { cache: 'reload' }).catch(() => {})));
+          try { localStorage.setItem(KEY, m.version); } catch {}
+          if (have !== null) { location.reload(); return; }
+        }
+      } catch {}
+      import('./src/settings-page.js');
+    })();
+  </script>
+</body>
+</html>

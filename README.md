@@ -49,9 +49,24 @@ The **🔒 lock** button freezes Grim's own layout controls (bar width / positio
 The window's position and size can only be locked by OverlayPlugin itself: right-click the
 overlay → **Lock**, or tick *Lock overlay* in its config. Do both.
 
-> **Updated and still seeing the old overlay?** OverlayPlugin's browser caches hard. Change the
-> URL to `https://jfinsmith.github.io/Grim-Skill-Display/?v=2` (any new query string works) and
-> Reload — that forces a fresh download.
+### Settings in their own window
+
+The ⚙ gear opens settings inside the bar's window. For a big, separate settings window, add a
+**second overlay** in OverlayPlugin (New → Custom → MiniParse, name it `Grim Settings`) with
+the URL:
+
+```
+https://jfinsmith.github.io/Grim-Skill-Display/settings.html
+```
+
+Size it however you like. Every change applies to the bar instantly (both overlays share the
+same browser storage). Hide the settings overlay when you're done — it keeps its size and
+position for next time.
+
+> **Updates:** Grim checks `version.json` on every load and re-downloads its own files when a
+> new version is out, so OverlayPlugin's stubborn browser cache can't serve stale code. If you
+> are coming from a version before 1.4, change the URL once (e.g. add `?v=3`) and Reload to
+> pick up the self-updater.
 
 > **Tip:** keep the header **pinned** (📌, the default) if you use a transparent background — a
 > fully transparent bar is otherwise click-through and the header only appears when you hover an
@@ -159,9 +174,12 @@ Data comes from [XIVAPI v2](https://v2.xivapi.com/). All FFXIV content is © SQU
 ## Project layout
 
 ```
-index.html               entry point (loads the modules + OverlayPlugin bridge)
+index.html               the bar overlay (self-updating bootstrap + OverlayPlugin bridge)
+settings.html            optional second overlay: settings in their own window
+version.json             overlay version + file list; bump `version` on every release
 src/                      ES modules — no build step
   app.js                   orchestrator / startup
+  settings-page.js         entry point for settings.html
   act.js                   ACT · OverlayPlugin · WebSocket listener
   parser.js                interprets battle-log lines, drives every feature
   bar.js                   the scrolling skill bar
@@ -192,7 +210,7 @@ overlay a synthetic ACT event.
   `raidbuffs.json`).
 - An overlay page **cannot move, resize or lock its own window**, and cannot open a separate
   window — OverlayPlugin exposes no API for it. That's why centering works via bar width and why
-  settings live inside the overlay.
+  the separate settings window is a second overlay you add yourself.
 - **Positional detection** covers every rear/flank skill in the data (MNK / DRG / NIN / SAM / RPR
   / VPR). Whether the bonus landed is read from the action-effect entries in the log line, which
   is a heuristic inherited from Kagami — if a positional looks wrong, see `checkPositional` in
