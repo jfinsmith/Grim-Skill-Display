@@ -31,41 +31,24 @@ and working.
    ```
 
 4. Click **Reload**. The bar appears — hit a striking dummy and your skills scroll across it.
-5. Click the **⚙ gear** for settings (a full-window panel with tabs; make the overlay window
-   bigger if it feels cramped). Drag the bar to move it, drag the bottom-right corner to resize,
-   then **lock the overlay** (right-click it in OverlayPlugin → *Lock*) when you're happy.
+5. Drag the bar to move it, drag the bottom-right corner to resize, then **lock the overlay**
+   (right-click it in OverlayPlugin → *Lock*) when you're happy.
+6. **Settings open in your normal browser** (big window, tabs, an explanation under every
+   setting) when you click the **⚙ gear**. This needs OverlayPlugin's WebSocket server: in ACT
+   → Plugins → OverlayPlugin.dll → **WSServer** tab, click **Start** and tick **Auto-start** so
+   it's always on. Without it, the gear opens a compact panel inside the overlay instead.
 
-### A small bar in a big window (recommended)
-
-OverlayPlugin doesn't let a page move or resize its own window, so Grim treats the window as a
-transparent canvas and draws the bar as a box inside it:
-
-1. Make the overlay window **big** (say a third of your screen) and drag it where you want the
-   bar to be. Lock it in OverlayPlugin (right-click → **Lock**) when you're done.
-2. Click the **⊙ center** button in the header: the bar shrinks to 60% × 50% of the window and
-   sits in the middle. Fine-tune under *Settings → Layout* (width, height, horizontal / vertical
-   position). The rest of the window is transparent and click-through once locked.
-3. Settings now open across the **whole window**, not just the bar.
-
-Click the button again to fill the window.
-
-### Settings in their own window (alternative)
-
-If you'd rather keep the bar's window tight, add a **second overlay** in OverlayPlugin
-(New → Custom → MiniParse, name it `Grim Settings`) with the URL:
-
-```
-https://jfinsmith.github.io/Grim-Skill-Display/settings.html
-```
-
-Size it however you like. Every change applies to the bar instantly (both overlays share the
-same browser storage). Hide the settings overlay when you're done — it keeps its size and
-position for next time.
+Every change you make in the browser applies to the bar instantly.
 
 > **Updates:** Grim checks `version.json` on every load and re-downloads its own files when a
-> new version is out, so OverlayPlugin's stubborn browser cache can't serve stale code. If you
-> are coming from a version before 1.4, change the URL once (e.g. add `?v=3`) and Reload to
-> pick up the self-updater.
+> new version is out, so OverlayPlugin's stubborn browser cache can't serve stale code — keep
+> the plain URL above forever.
+
+### Settings as a second overlay (alternative)
+
+Prefer not to leave the browser open? Add a second overlay in OverlayPlugin (New → Custom →
+MiniParse, name it `Grim Settings`) with `https://jfinsmith.github.io/Grim-Skill-Display/settings.html`
+and size it however you like. Both overlays share storage, so changes apply instantly.
 
 > **Tip:** keep the header **pinned** (📌, the default) if you use a transparent background — a
 > fully transparent bar is otherwise click-through and the header only appears when you hover an
@@ -137,11 +120,11 @@ pull, with timestamps. Drag or scroll the strip.
 
 ![Settings panel](docs/img/settings.png)
 
-Everything is configurable from the in-overlay settings modal, grouped into **Layout · Look ·
-Tracking · DoTs & buffs · Analysis**, with a one-line explanation under every setting: bar
-width/position/lock, themes (dark / light / job-color), accent + background color, icon shape and
-scale, display time, scroll direction, labels, every tracker and analysis feature, and the meter
-metric.
+Everything is configurable from the settings page (opens in your browser, see *Quick start*),
+grouped into **Layout · Look · Tracking · DoTs & buffs · Analysis**, with a one-line explanation
+under every setting: themes (dark / light / job-color), accent + background color, icon shape
+and scale, display time, scroll direction, labels, every tracker and analysis feature, and the
+meter metric.
 
 > All controls are click-based (toggles, steppers, segmented buttons, color swatches) because
 > OverlayPlugin's embedded browser doesn't handle native dropdowns or sliders well. To type in the
@@ -174,7 +157,7 @@ Data comes from [XIVAPI v2](https://v2.xivapi.com/). All FFXIV content is © SQU
 
 ```
 index.html               the bar overlay (self-updating bootstrap + OverlayPlugin bridge)
-settings.html            optional second overlay: settings in their own window
+settings.html            the settings page (opened in your browser by the ⚙ button, or as a 2nd overlay)
 version.json             overlay version + file list; bump `version` on every release
 src/                      ES modules — no build step
   app.js                   orchestrator / startup
@@ -207,9 +190,9 @@ overlay a synthetic ACT event.
 - **Raid-buff highlight** and the **opener countdown** match by English text, so on non-English
   clients you'll want to add the localized status / system-message names (see the comment in
   `raidbuffs.json`).
-- An overlay page **cannot move, resize or lock its own window**, and cannot open a separate
-  window — OverlayPlugin exposes no API for it. That's why centering works via bar width and why
-  the separate settings window is a second overlay you add yourself.
+- An overlay page **cannot move, resize or lock its own window** — OverlayPlugin exposes no API
+  for it. Position and size the overlay in ACT. The settings window is opened through
+  OverlayPlugin's `openWebsiteWithWS` handler, which is why it needs the WSServer running.
 - **Positional detection** covers every rear/flank skill in the data (MNK / DRG / NIN / SAM / RPR
   / VPR). Whether the bonus landed is read from the action-effect entries in the log line, which
   is a heuristic inherited from Kagami — if a positional looks wrong, see `checkPositional` in

@@ -35,17 +35,24 @@ export function set(key, value) {
 
 function save() { localStorage.setItem(KEY, JSON.stringify(settings)); }
 
-// Another window on the same origin (settings.html running as its own overlay) saved
-// settings: pick up every changed key and notify as if it had been set() here.
-window.addEventListener('storage', (e) => {
-  if (e.key !== KEY || !e.newValue) return;
-  let incoming;
-  try { incoming = JSON.parse(e.newValue); } catch { return; }
+// Settings arriving from another window (settings.html over the OverlayPlugin WebSocket, or a
+// second overlay sharing localStorage): adopt every changed key and notify as if set() here.
+// `remote` lets subscribers tell these apart from local edits (so they don't echo them back).
+let remote = false;
+export const isRemoteApply = () => remote;
+export function applyIncoming(incoming) {
+  if (!incoming || typeof incoming !== 'object') return;
   const changed = Object.keys({ ...settings, ...incoming }).filter((k) => JSON.stringify(settings[k]) !== JSON.stringify(incoming[k]));
   if (!changed.length) return;
   settings = { ...Data.settings, ...incoming };
+  save();
   applyTheme();
-  changed.forEach(notify);
+  remote = true;
+  try { changed.forEach(notify); } finally { remote = false; }
+}
+window.addEventListener('storage', (e) => {
+  if (e.key !== KEY || !e.newValue) return;
+  try { applyIncoming(JSON.parse(e.newValue)); } catch {}
 });
 
 // The job we're currently playing (from CombatData); drives the accent in the jobcolor theme.

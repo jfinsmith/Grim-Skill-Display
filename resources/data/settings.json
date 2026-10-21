@@ -1,9 +1,5 @@
 {
   "pinHeader": true,
-  "barWidth": 100,
-  "barHeight": 100,
-  "barAlign": "center",
-  "barVAlign": "center",
   "showAutoAttacks": true,
   "showPetActions": true,
   "displayTime": 10,
