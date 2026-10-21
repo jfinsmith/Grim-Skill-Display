@@ -18,9 +18,14 @@ export function initHeader() {
   jobIconEl = document.getElementById('job-icon');
 }
 
+// Shown only once ACT reports a real job; row 0 ("adventurer") has no icon in the game data.
 export function setJobIcon(job) {
-  jobIconEl.onerror = () => { jobIconEl.onerror = null; jobIconEl.src = jobIconPath('ADV'); };
-  jobIconEl.src = jobIconPath(job);
+  const known = job && job !== 'ADV';
+  jobIconEl.classList.toggle('hide', !known);
+  if (known) {
+    jobIconEl.onerror = () => { jobIconEl.onerror = null; jobIconEl.classList.add('hide'); };
+    jobIconEl.src = jobIconPath(job);
+  }
   setJob(job);
 }
 

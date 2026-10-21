@@ -155,7 +155,7 @@ src/                      ES modules — no build step
 resources/
   data/*.json              actions, items, mounts, jobs, raid buffs, language, settings, meta
   icons/*.png              ~2,800 bundled HD icons (skills, items, mounts)
-  classjob/<ABBR>.png      one icon per job (PLD.png, BST.png, ...)
+  classjob/<ABBR>.png      one icon per job (PLD.png, BST.png, ...); hidden until ACT reports a job
 tools/resync.ps1           data-regeneration script (PowerShell; not shipped to users)
 docs/img/                  screenshots used in this README
 ```

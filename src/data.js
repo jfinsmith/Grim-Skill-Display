@@ -40,8 +40,8 @@ export async function loadData() {
 
 // Resolve a local icon path from a 6-digit icon number.
 export const iconPath = (num) => (num ? `./resources/icons/${num}.png` : '');
-// Job icon by ACT abbreviation (PLD, BST, ...). ADV.png is the fallback.
-export const jobIconPath = (abbr) => `./resources/classjob/${abbr || 'ADV'}.png`;
+// Job icon by ACT abbreviation (PLD, BST, ...).
+export const jobIconPath = (abbr) => `./resources/classjob/${abbr}.png`;
 
 // Does this job have any rear/flank skill? Derived from the data, cached per job.
 const posJobs = new Map();

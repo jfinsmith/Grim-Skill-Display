@@ -211,8 +211,7 @@ Write-Host "`n== Job icons =="
 $n = 0
 foreach ($r in (Get-Rows 'ClassJob' 'Abbreviation')) {
   $abbr = [string]$r.fields.Abbreviation
-  if (-not $abbr -and $r.row_id -ne 0) { continue }
-  if (-not $abbr) { $abbr = 'ADV' }
+  if (-not $abbr) { continue }   # row 0 "adventurer" only has a placeholder texture
   $dest = Join-Path $JobDir "$abbr.png"
   if (Test-Path $dest) { continue }
   $num = '{0:D6}' -f (62100 + [int]$r.row_id)   # ui/icon/062000/0621XX = framed job icons
