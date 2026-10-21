@@ -31,9 +31,27 @@ and working.
    ```
 
 4. Click **Reload**. The bar appears — hit a striking dummy and your skills scroll across it.
-5. **Hover the top edge** for the header, then click the **⚙ gear** for settings. Drag the bar to
-   move it, drag the bottom-right corner to resize, then **lock the overlay** (right-click it in
-   OverlayPlugin → *Lock*) when you're happy.
+5. Click the **⚙ gear** for settings (a full-window panel with tabs; make the overlay window
+   bigger if it feels cramped). Drag the bar to move it, drag the bottom-right corner to resize,
+   then **lock the overlay** (right-click it in OverlayPlugin → *Lock*) when you're happy.
+
+### Centering the bar on screen
+
+OverlayPlugin doesn't let a page move its own window, so Grim does it the other way round:
+stretch the overlay window across the **whole width of your screen**, then click the
+**⇔ center** button in the header (or set *Layout → Bar width* to ~60% and *Bar position* to
+*Center*). The bar draws in the middle of the window, which is the middle of your screen; the
+rest of the window is transparent. Click the button again for full width.
+
+### Locking
+
+The **🔒 lock** button freezes Grim's own layout controls (bar width / position, resize corner).
+The window's position and size can only be locked by OverlayPlugin itself: right-click the
+overlay → **Lock**, or tick *Lock overlay* in its config. Do both.
+
+> **Updated and still seeing the old overlay?** OverlayPlugin's browser caches hard. Change the
+> URL to `https://jfinsmith.github.io/Grim-Skill-Display/?v=2` (any new query string works) and
+> Reload — that forces a fresh download.
 
 > **Tip:** keep the header **pinned** (📌, the default) if you use a transparent background — a
 > fully transparent bar is otherwise click-through and the header only appears when you hover an
@@ -105,14 +123,15 @@ pull, with timestamps. Drag or scroll the strip.
 
 ![Settings panel](docs/img/settings.png)
 
-Everything is configurable from the in-overlay settings panel (it lays out in columns to fit a
-wide bar): themes (dark / light / job-color), accent + background color, icon shape and scale,
-display time, scroll direction, labels, every tracker and analysis feature, the meter metric, and
-language.
+Everything is configurable from the in-overlay settings modal, grouped into **Layout · Look ·
+Tracking · DoTs & buffs · Analysis**, with a one-line explanation under every setting: bar
+width/position/lock, themes (dark / light / job-color), accent + background color, icon shape and
+scale, display time, scroll direction, labels, every tracker and analysis feature, and the meter
+metric.
 
-> All controls are click-based (steppers, dropdowns, color swatches) because OverlayPlugin's
-> embedded browser doesn't handle native dropdowns or sliders well. To type in the **hex
-> background field**, lock the overlay first.
+> All controls are click-based (toggles, steppers, segmented buttons, color swatches) because
+> OverlayPlugin's embedded browser doesn't handle native dropdowns or sliders well. To type in the
+> **hex background field**, lock the overlay first.
 
 ---
 
@@ -171,6 +190,9 @@ overlay a synthetic ACT event.
 - **Raid-buff highlight** and the **opener countdown** match by English text, so on non-English
   clients you'll want to add the localized status / system-message names (see the comment in
   `raidbuffs.json`).
+- An overlay page **cannot move, resize or lock its own window**, and cannot open a separate
+  window — OverlayPlugin exposes no API for it. That's why centering works via bar width and why
+  settings live inside the overlay.
 - **Positional detection** covers every rear/flank skill in the data (MNK / DRG / NIN / SAM / RPR
   / VPR). Whether the bonus landed is read from the action-effect entries in the log line, which
   is a heuristic inherited from Kagami — if a positional looks wrong, see `checkPositional` in

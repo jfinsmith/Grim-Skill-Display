@@ -16,6 +16,19 @@ export function initHeader() {
   petEl = document.getElementById('stat-pet');
   uptimeEl = document.getElementById('stat-uptime');
   jobIconEl = document.getElementById('job-icon');
+  // stay hidden until ACT tells us the job (also covers a cached pre-1.2 index.html)
+  jobIconEl.classList.add('hide');
+  jobIconEl.removeAttribute('src');
+}
+
+// Short message in the header's info row (replaces the tagline for a few seconds).
+let toastTimer = null;
+export function toast(msg, ms = 4000) {
+  if (!descEl) return;
+  descEl.textContent = msg;
+  descEl.classList.remove('hide');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => descEl.classList.add('hide'), ms);
 }
 
 // Shown only once ACT reports a real job; row 0 ("adventurer") has no icon in the game data.
