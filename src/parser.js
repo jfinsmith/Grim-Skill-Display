@@ -104,8 +104,14 @@ function handleAction(code, ts, p) {
   else if (actorID === player.petID) lane = 'pet';
   else return;
 
-  // auto-attacks (use the real crossed-swords icon; show interval to gauge skill/spell speed)
-  if (actionID === 7 || actionID === 8) {
+  // resolve action / item / mount into a renderable
+  const action = resolveAction(actionID, p);
+  action.actorID = actorID;
+
+  // auto-attacks: IDs 7/8 for the player, but pets / familiars use their own nameless rows,
+  // so go by the action category (1 = Auto-attack). Player autos get the crossed-swords icon
+  // and the interval since the last one (to gauge skill/spell speed); pet autos are noise.
+  if (actionID === 7 || actionID === 8 || action.category === 1) {
     if (lane === 'player' && get('showAutoAttacks')) {
       let interval = 0;
       if (lastAutoAttack > 0) interval = (Date.now() - lastAutoAttack) / 1000;
@@ -114,12 +120,9 @@ function handleAction(code, ts, p) {
     }
     return;
   }
-
-  // resolve action / item / mount into a renderable
-  const action = resolveAction(actionID, p);
-  action.actorID = actorID;
-  // a pet / familiar skill the data has no icon for at all: the pet-command icon (000531)
-  // beats the game's blue "no icon" placeholder
+  // pet / familiar rows with neither a name nor an icon anywhere are internal plumbing: skip.
+  // Ones with a name but no icon get the pet-command icon (000531) instead of the placeholder.
+  if (lane === 'pet' && !action.name) return;
   if (lane === 'pet' && isPlaceholderIcon(action.icon)) action.icon = '000531';
   let ct = castTime;
   if (lane === 'player' && ct > 66) ct -= 66; // kagami: trim the ~animation lock
@@ -205,14 +208,16 @@ function resolveAction(actionID, p) {
   const a = lookupAction(actionID);
   // Rows without an icon of their own (monster / familiar skills, general actions such as
   // Desynthesis, duplicate rows) get the icon of a same-named row that has one.
+  // ACT labels rows it has no name for "unknown_<hex id>"; don't show that as a skill name
+  const logged = /^unknown_[0-9a-f]+$/i.test(p[3] || '') ? '' : (p[3] || '');
   if (a) {
     if (isPlaceholderIcon(a.icon)) {
-      const name = a.name || p[3];
+      const name = a.name || logged;
       return { ...a, name, icon: iconForName(name) || '000405', isReal: true };
     }
     return { ...a, isReal: true };
   }
-  return { id: actionID, name: p[3] || '???', icon: iconForName(p[3]) || '000405', cooldownGroup: [0, 0], isReal: true };
+  return { id: actionID, name: logged || '???', icon: iconForName(logged) || '000405', cooldownGroup: [0, 0], isReal: true };
 }
 
 /* ---------------- combat data ---------------- */
